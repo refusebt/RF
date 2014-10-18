@@ -9,6 +9,7 @@
 #import "RFRequestWork.h"
 #import "RFNetworkKit.h"
 #import "RFCmdRequest.h"
+#import "SVProgressHUD.h"
 
 @implementation RFRequestWork
 @synthesize workRequest = _workRequest;

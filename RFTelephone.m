@@ -12,6 +12,7 @@
 #import <MessageUI/MessageUI.h>
 #import "ARCMacros.h"
 #import "RFKit.h"
+#import "RFUIKit.h"
 
 @interface RFTelephone ()
 <

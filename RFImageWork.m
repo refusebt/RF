@@ -9,6 +9,7 @@
 #import "RFImageWork.h"
 #import "RFNetworkKit.h"
 #import "RFCmdRequest.h"
+#import "RF.h"
 
 @implementation RFImageWork
 @synthesize workRequest = _workRequest;

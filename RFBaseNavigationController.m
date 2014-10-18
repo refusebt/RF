@@ -7,6 +7,7 @@
 //
 
 #import "RFBaseNavigationController.h"
+#import "RF.h"
 
 @interface RFBaseNavigationController ()
 

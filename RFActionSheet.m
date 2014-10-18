@@ -7,6 +7,7 @@
 //
 
 #import "RFActionSheet.h"
+#import "RF.h"
 
 @interface RFActionSheet ()
 {

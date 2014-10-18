@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ARCMacros.h"
 
 // 注：RFWork的子类不要添加start名称的属性，会导致无法启动
 

@@ -7,6 +7,7 @@
 //
 
 #import "RFUITextField.h"
+#import "RFUIKit.h"
 
 @interface RFUITextField ()
 <

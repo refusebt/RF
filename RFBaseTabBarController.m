@@ -7,6 +7,7 @@
 //
 
 #import "RFBaseTabBarController.h"
+#import "RF.h"
 
 @interface RFBaseTabBarController ()
 

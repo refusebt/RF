@@ -8,6 +8,7 @@
 
 #import "RFUILockView.h"
 #import "ARCMacros.h"
+#import "RFUIKit.h"
 
 @interface RFUILockView ()
 @property (nonatomic, SAFE_ARC_STRONG) UIView *viewLock;

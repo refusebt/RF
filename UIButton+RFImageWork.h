@@ -7,6 +7,7 @@
 //
 
 #import "RFWork.h"
+#import "RFImageWork.h"
 
 @interface UIButton (RFImageWork)
 

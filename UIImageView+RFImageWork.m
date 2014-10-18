@@ -8,6 +8,8 @@
 
 #import "UIImageView+RFImageWork.h"
 #import "RFCmdConfig.h"
+#import "RFKit.h"
+#import "RFStorageKit.h"
 #import <objc/runtime.h>
 
 static void * kRFUIImageViewImageWorkKey = "kRFUIImageViewImageWorkKey";

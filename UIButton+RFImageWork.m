@@ -8,6 +8,8 @@
 
 #import "UIButton+RFImageWork.h"
 #import <objc/runtime.h>
+#import "RFKit.h"
+#import "RFStorageKit.h"
 
 static void * kRFUIImageViewImageWorkKey = "kRFUIImageViewImageWorkKey";
 static void * kRFUIImageViewBackgroundImageWorkKey = "kRFUIImageViewBackgroundImageWorkKey";

@@ -8,6 +8,8 @@
 
 #import "RFUILoadingView.h"
 #import "ARCMacros.h"
+#import "RFUIKit.h"
+#import "RFKit.h"
 
 #pragma mark RFUILoadingViewParam
 

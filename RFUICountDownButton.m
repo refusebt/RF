@@ -8,6 +8,7 @@
 
 #import "RFUICountDownButton.h"
 #import "ARCMacros.h"
+#import "RFKit.h"
 
 @interface RFUICountDownButton()
 {

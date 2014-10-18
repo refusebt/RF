@@ -7,6 +7,7 @@
 //
 
 #import "RFBaseViewController.h"
+#import "RF.h"
 #import "ARCMacros.h"
 
 @interface RFBaseViewController ()

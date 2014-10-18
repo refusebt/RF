@@ -7,6 +7,7 @@
 //
 
 #import "RFUITextView.h"
+#import "RFKit.h"
 
 @interface RFUITextView ()
 <
