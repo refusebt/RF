@@ -79,7 +79,12 @@ static const CGFloat SVProgressHUDParallaxDepthPoints = 10;
 + (SVProgressHUD*)sharedView {
     static dispatch_once_t once;
     static SVProgressHUD *sharedView;
-    dispatch_once(&once, ^ { sharedView = [[self alloc] initWithFrame:[[UIScreen mainScreen] bounds]]; });
+//    dispatch_once(&once, ^ { sharedView = [[self alloc] initWithFrame:[[UIScreen mainScreen] bounds]]; });
+	dispatch_once(&once, ^ {
+		CGRect frame = [UIScreen mainScreen].bounds;
+		CGFloat l = MAX(((NSInteger)frame.size.width), ((NSInteger)frame.size.height));
+		sharedView = [[self alloc] initWithFrame:CGRectMake(0, 0, l, l)];
+	});
     return sharedView;
 }
 
@@ -255,6 +260,9 @@ static const CGFloat SVProgressHUDParallaxDepthPoints = 10;
             
             break;
         }
+			
+		default:
+			break;
     }
 }
 
@@ -282,8 +290,20 @@ static const CGFloat SVProgressHUDParallaxDepthPoints = 10;
                                          attributes:@{NSFontAttributeName: self.stringLabel.font}
                                             context:NULL];
         } else {
-          CGSize stringSize = [string sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(200, 300)];
-          stringRect = CGRectMake(0.0f, 0.0f, stringSize.width, stringSize.height);
+            CGSize stringSize;
+            #ifdef __IPHONE_8_0
+				if (IS_IOS7)
+				{
+					stringSize = [string sizeWithAttributes:@{NSFontAttributeName:[UIFont fontWithName:self.stringLabel.font.fontName size:self.stringLabel.font.pointSize]}];
+				}
+				else
+				{
+					stringSize = [string sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(200, 300)];
+				}
+            #else
+                stringSize = [string sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(200, 300)];
+            #endif
+            stringRect = CGRectMake(0.0f, 0.0f, stringSize.width, stringSize.height);
         }
         stringWidth = stringRect.size.width;
         stringHeight = ceil(stringRect.size.height);
@@ -398,12 +418,17 @@ static const CGFloat SVProgressHUDParallaxDepthPoints = 10;
 - (void)positionHUD:(NSNotification*)notification {
     
     CGFloat keyboardHeight;
-    double animationDuration = 0.0f;
+    double animationDuration;
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    // no transforms applied to window in iOS 8
-    BOOL ignoreOrientation = [[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)];
-    
+    // no transforms applied to window in iOS 8, but only if compiled with iOS 8 sdk as base sdk, otherwise system supports old rotation logic.
+    BOOL ignoreOrientation = NO;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+    if ([[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)]) {
+      ignoreOrientation = YES;
+    }
+#endif
+
     if(notification) {
         NSDictionary* keyboardInfo = [notification userInfo];
         CGRect keyboardFrame = [[keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
