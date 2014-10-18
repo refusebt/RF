@@ -252,11 +252,6 @@ static NSString *s_language = nil;
 		return value;
 	}
 	
-	if ([value isKindOfClass:[NSMutableString class]])
-	{
-		return value;
-	}
-	
 	if ([value isKindOfClass:[NSNumber class]])
 	{
 		return  [value stringValue];
@@ -271,7 +266,13 @@ static NSString *s_language = nil;
 	{
 		return 0;
 	}
-	return [value integerValue];
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value integerValue];
+	}
+	
+	return 0;
 }
 
 + (int64_t)toInt64WithJsonValue:(id)value
@@ -280,7 +281,13 @@ static NSString *s_language = nil;
 	{
 		return 0;
 	}
-	return [value longLongValue];
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value longLongValue];
+	}
+	
+	return 0;
 }
 
 + (short)toShortWithJsonValue:(id)value
@@ -289,7 +296,13 @@ static NSString *s_language = nil;
 	{
 		return 0;
 	}
-	return [value shortValue];
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value shortValue];
+	}
+	
+	return 0;
 }
 
 + (float)toFloatWithJsonValue:(id)value
@@ -298,7 +311,13 @@ static NSString *s_language = nil;
 	{
 		return 0;
 	}
-	return [value floatValue];
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value floatValue];
+	}
+	
+	return 0;
 }
 
 + (double)toDoubleWithJsonValue:(id)value
@@ -307,7 +326,13 @@ static NSString *s_language = nil;
 	{
 		return 0;
 	}
-	return [value doubleValue];
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value doubleValue];
+	}
+	
+	return 0;
 }
 
 + (id)toArrayWithJsonValue:(id)value
@@ -338,6 +363,52 @@ static NSString *s_language = nil;
 	}
 	
 	return nil;
+}
+
++ (id)deepMutableCopyWithJson:(id)json
+{
+	if (json == nil || [json isKindOfClass:[NSNull class]])
+	{
+		NSMutableString *str = [NSMutableString stringWithCapacity:0];
+		return str;
+	}
+	
+	if ([json isKindOfClass:[NSNumber class]])
+	{
+		NSMutableString *str = [NSMutableString stringWithCapacity:0];
+		[str appendFormat:@"%@", json];
+		return str;
+	}
+	
+	if ([json isKindOfClass:[NSArray class]])
+	{
+		NSMutableArray *array = [NSMutableArray array];
+		for (id value in json)
+		{
+			[array addObject:[ESKit deepMutableCopyWithJson:value]];
+		}
+		return array;
+	}
+	
+	if ([json isKindOfClass:[NSDictionary class]])
+	{
+		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+		for (NSString *key in json)
+		{
+			id value = [ESKit deepMutableCopyWithJson:json[key]];
+			[dict setObject:value forKey:key];
+		}
+		return dict;
+	}
+	
+	if ([json isKindOfClass:[NSString class]])
+	{
+		NSMutableString *str = [NSMutableString stringWithCapacity:0];
+		[str appendFormat:@"%@", json];
+		return str;
+	}
+	
+	return json;
 }
 
 + (NSString *)getUUID
