@@ -141,14 +141,14 @@
 
 #pragma mark RFKeyValuePair
 
-@interface RFKeyValuePair : NSObject <NSCoding>
+@interface RFKeyValuePair : NSObject
 {
 
 }
 @property (nonatomic, strong) NSString *key;
-@property (nonatomic, strong) id<NSCoding> value;
+@property (nonatomic, strong) id value;
 
-- (id)initWithKey:(NSString *)aKey value:(id<NSCoding>)aValue;
+- (id)initWithKey:(NSString *)aKey value:(id)aValue;
 
 + (RFKeyValuePair *)pairWithKey:(NSString *)key str:(NSString *)str;
 + (RFKeyValuePair *)pairWithKey:(NSString *)key num:(int64_t)num;

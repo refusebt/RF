@@ -252,12 +252,17 @@ static NSString *s_language = nil;
 		return value;
 	}
 	
+	if ([value isKindOfClass:[NSMutableString class]])
+	{
+		return value;
+	}
+	
 	if ([value isKindOfClass:[NSNumber class]])
 	{
 		return  [value stringValue];
 	}
 	
-	return value;
+	return @"";
 }
 
 + (NSInteger)toIntegerWithJsonValue:(id)value
@@ -362,7 +367,7 @@ static NSString *s_language = nil;
 @synthesize key;
 @synthesize value;
 
-- (id)initWithKey:(NSString *)aKey value:(id<NSCoding>)aValue
+- (id)initWithKey:(NSString *)aKey value:(id)aValue
 {
 	self = [super init];
     if (self)
@@ -379,27 +384,6 @@ static NSString *s_language = nil;
 	SAFE_ARC_RELEASE(value);
 	
 	SAFE_ARC_SUPER_DEALLOC();
-}
-
-- (void)encodeWithCoder:(NSCoder *)aCoder
-{
-	[aCoder encodeObject:key forKey:@"key"];
-	[aCoder encodeObject:value forKey:@"value"];
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-	if (self = [super init])
-	{
-		if (aDecoder == nil)
-		{
-			return self;
-		}
-		
-		key = SAFE_ARC_RETAIN([aDecoder decodeObjectForKey:@"key"]);
-		value = SAFE_ARC_RETAIN([aDecoder decodeObjectForKey:@"value"]);
-	}
-	return self;
 }
 
 + (RFKeyValuePair *)pairWithKey:(NSString *)key str:(NSString *)str
