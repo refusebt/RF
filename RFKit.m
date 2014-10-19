@@ -385,7 +385,7 @@ static NSString *s_language = nil;
 		NSMutableArray *array = [NSMutableArray array];
 		for (id value in json)
 		{
-			[array addObject:[ESKit deepMutableCopyWithJson:value]];
+			[array addObject:[RFKit deepMutableCopyWithJson:value]];
 		}
 		return array;
 	}
@@ -395,7 +395,7 @@ static NSString *s_language = nil;
 		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 		for (NSString *key in json)
 		{
-			id value = [ESKit deepMutableCopyWithJson:json[key]];
+			id value = [RFKit deepMutableCopyWithJson:json[key]];
 			[dict setObject:value forKey:key];
 		}
 		return dict;
