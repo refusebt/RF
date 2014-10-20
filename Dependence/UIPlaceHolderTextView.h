@@ -1,9 +1,9 @@
 //
 //  UIPlaceHolderTextView.h
-//  9skyContPack
+//  GZH
 //
 //  Created by shenyuexin on 11-11-18.
-//  Copyright (c) 2011年 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011年 GZH. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

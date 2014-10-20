@@ -3,7 +3,7 @@
 //  RF
 //
 //  Created by gouzhehua on 14-6-25.
-//  Copyright (c) 2014年 skyinfo. All rights reserved.
+//  Copyright (c) 2014年 GZH. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
