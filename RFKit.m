@@ -117,7 +117,7 @@ static NSString *s_language = nil;
 	if (s_appVer >= 0)
 		return s_appVer;
 	
-	NSString *ver = [RFKit bundleVersion];
+	NSString *ver = [[UIDevice currentDevice] systemVersion];
 	s_appVer = [RFKit verStrToInt:ver];
 	
 	return s_appVer;
