@@ -689,6 +689,8 @@ static NSString *s_language = nil;
 
 #pragma mark NSDate (RFKit)
 
+static int64_t s_deviation = 0;
+
 @implementation NSDate (RFKit)
 
 + (NSString *)yyyyMMddHHmmssSince1970:(int64_t)millisecond
@@ -754,13 +756,18 @@ static NSString *s_language = nil;
 + (int64_t)millisecondSince1970
 {
 	NSTimeInterval now = [[NSDate new] timeIntervalSince1970];
-	return (int64_t)(now*1000);
+	return ((int64_t)(now*1000) + s_deviation);
 }
 
 + (NSDate *)dateWithMillisecondSince1970:(int64_t)millisecond
 {
 	NSDate *date = [NSDate dateWithTimeIntervalSince1970:((double)millisecond / 1000)];
 	return date;
+}
+
++ (void)modifyTimeWithLocal:(int64_t)local server:(int64_t)server
+{
+	s_deviation = server - local;
 }
 
 + (NSDate *)dateString:(NSString *)dateString withFormatString:(NSString *)formateString;

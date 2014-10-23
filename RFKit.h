@@ -210,6 +210,7 @@
 
 + (int64_t)millisecondSince1970;
 + (NSDate *)dateWithMillisecondSince1970:(int64_t)millisecond;
++ (void)modifyTimeWithLocal:(int64_t)local server:(int64_t)server;
 
 + (NSDate *)dateString:(NSString *)dateString withFormatString:(NSString *)formateString;
 
