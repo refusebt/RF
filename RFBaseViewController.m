@@ -125,7 +125,7 @@
 
 - (BOOL)shouldAutorotate
 {
-	return NO;
+	return YES;
 }
 
 - (NSUInteger)supportedInterfaceOrientations
@@ -136,11 +136,6 @@
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
 	return UIInterfaceOrientationPortrait;
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 - (void)removeAllInputResponders
