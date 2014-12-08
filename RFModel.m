@@ -9,70 +9,31 @@
 #import "RFModel.h"
 #import <objc/runtime.h>
 
-@interface RFModel ()
-
-+ (NSMutableDictionary *)modelInfos;
-
-@end
-
-#pragma mark - RFModelClassInfo
-
-@interface RFModelClassInfo : NSObject
-@property (nonatomic, strong) NSMutableDictionary *keyToProperty;
-@property (nonatomic, strong) NSMutableDictionary *selToProperty;
-@property (nonatomic, strong) NSMutableDictionary *selToType;
-- (id)initWithModelClass:(Class)modelClass;
-@end
-
-@implementation RFModelClassInfo
-@synthesize keyToProperty = _keyToProperty;
-@synthesize selToProperty = _selToProperty;
-@synthesize selToType = _selToType;
-
-- (id)initWithModelClass:(Class)modelClass
+typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 {
-	self = [super init];
-	if (self)
-	{
-		_keyToProperty = [NSMutableDictionary dictionary];
-		_selToProperty = [NSMutableDictionary dictionary];
-		_selToType = [NSMutableDictionary dictionary];
-		
-		Class current = modelClass;
-		while (current != [RFModel class])
-		{
-			unsigned count;
-			objc_property_t *properties = class_copyPropertyList(current, &count);
-			for (unsigned i = 0; i < count; i++)
-			{
-				objc_property_t property = properties[i];
-				const char *propertyNameC = property_getName(property);
-				NSString *propertyName = [NSString stringWithUTF8String:propertyNameC];
-				const char* propertyAttrC = property_getAttributes(property);
-				NSString* propertyAttrS = [NSString stringWithUTF8String:propertyAttrC];
-				NSArray* propertyAttr = [propertyAttrS componentsSeparatedByString:@","];
-				
-				/*
-				 <__NSArrayM 0x7fd85b930fc0>(
-				 T@"NSString",
-				 &,
-				 N,
-				 G_rf_get_nameValue_name,
-				 S_rf_set_nameValue_name:,
-				 V_name
-				 )
-				 */
-				
-				NSLog(@"%@ has property %@", NSStringFromClass(current), propertyName);
-			}
-			free(properties);
-			
-			current = [current superclass];
-		}
-	}
-	return self;
-}
+	RFModelPropertyTypeNone = 0,
+	RFModelPropertyTypeInteger,
+	RFModelPropertyTypeInt64,
+	RFModelPropertyTypeShort,
+	RFModelPropertyTypeFloat,
+	RFModelPropertyTypeDouble,
+	RFModelPropertyTypeString,
+	RFModelPropertyTypeArray,
+	RFModelPropertyTypeNSDictionary,
+};
 
+@interface RFModelPropertyInfo : NSObject
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *mapName;
+@property (nonatomic, strong) NSString *var;
+@property (nonatomic, assign) RFModelPropertyType type;
+
++ (NSMutableDictionary *)mapPropertyInfosWithClass:(Class)cls;
++ (RFModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property;
+@end
+
+@interface RFModel ()
++ (NSMutableDictionary *)modelInfos;
 @end
 
 #pragma mark - RFModel
@@ -83,9 +44,9 @@
 {
 	if ([self class] != [RFModel class])
 	{
-		RFModelClassInfo *info = [[RFModelClassInfo alloc] initWithModelClass:[self class]];
+		NSMutableDictionary *mapPropertyInfos = [RFModelPropertyInfo mapPropertyInfosWithClass:[self class]];
 		const char *className = object_getClassName([self class]);
-		[[RFModel modelInfos] setObject:info forKey:[NSValue valueWithPointer:className]];
+		[[RFModel modelInfos] setObject:mapPropertyInfos forKey:[NSValue valueWithPointer:className]];
 	}
 }
 
@@ -118,6 +79,111 @@
 
 @end
 
+#pragma mark - RFModelPropertyInfo
+
+@implementation RFModelPropertyInfo
+
++ (NSMutableDictionary *)mapPropertyInfosWithClass:(Class)cls
+{
+	NSMutableDictionary *mapProperInfos = [NSMutableDictionary dictionary];
+	
+	if ([cls isSubclassOfClass:[RFModel class]])
+	{
+		Class current = cls;
+		while (current != [RFModel class])
+		{
+			unsigned count = 0;
+			objc_property_t *properties = class_copyPropertyList(current, &count);
+			for (unsigned i = 0; i < count; i++)
+			{
+				objc_property_t property = properties[i];
+				RFModelPropertyInfo *pi = [RFModelPropertyInfo propertyInfoWithProperty:&property];
+				if (pi != nil)
+				{
+					[mapProperInfos setObject:pi forKey:pi.mapName];
+				}
+			}
+			free(properties);
+			
+			current = [current superclass];
+		}
+	}
+	
+	return mapProperInfos;
+}
+
++ (RFModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property
+{
+	RFModelPropertyInfo *info = [[RFModelPropertyInfo alloc] init];
+	info.name = [NSString stringWithUTF8String:property_getName(*property)];
+	
+	NSString *propertyAttrString = [NSString stringWithUTF8String:property_getAttributes(*property)];
+	NSArray *propertyAttrArray = [propertyAttrString componentsSeparatedByString:@","];
+	for (NSString *attrib in propertyAttrArray)
+	{
+		if ([attrib hasPrefix:@"T"] && attrib.length > 1)
+		{
+			if ([attrib hasPrefix:@"Ti"] || [attrib hasPrefix:@"TI"])
+			{
+				info.type = RFModelPropertyTypeInteger;
+			}
+			else if ([attrib hasPrefix:@"Tq"] || [attrib hasPrefix:@"TQ"])
+			{
+				info.type = RFModelPropertyTypeInt64;
+			}
+			else if ([attrib hasPrefix:@"Ts"] || [attrib hasPrefix:@"TS"])
+			{
+				info.type = RFModelPropertyTypeShort;
+			}
+			else if ([attrib hasPrefix:@"Tf"] || [attrib hasPrefix:@"TF"])
+			{
+				info.type = RFModelPropertyTypeFloat;
+			}
+			else if ([attrib hasPrefix:@"Td"] || [attrib hasPrefix:@"TD"])
+			{
+				info.type = RFModelPropertyTypeDouble;
+			}
+			else if ([attrib hasPrefix:@"T@\"NSString\""])
+			{
+				info.type = RFModelPropertyTypeString;
+			}
+			else if ([attrib hasPrefix:@"T@\"NSArray\""])
+			{
+				info.type = RFModelPropertyTypeArray;
+			}
+			else if ([attrib hasPrefix:@"T@\"NSDictionary\""])
+			{
+				info.type = RFModelPropertyTypeNSDictionary;
+			}
+			else
+			{
+				NSException *e = [NSException exceptionWithName:@"Unsupport RFModel Type"
+														 reason:[NSString stringWithFormat:@"Unsupport RFModel Type (%@, %@)", info.name, attrib]
+													   userInfo:nil];
+				@throw e;
+			}
+		}
+		else if ([attrib hasPrefix:@"S"] && attrib.length > 7)
+		{
+			// S_rfm_mapName:
+			info.mapName = [attrib substringWithRange:NSMakeRange(6, attrib.length-7)];
+		}
+		else if ([attrib hasPrefix:@"V"] && attrib.length > 1)
+		{
+			// V_name
+			info.var = [attrib substringWithRange:NSMakeRange(1, attrib.length-1)];
+		}
+	}
+	
+	if (![NSString isEmpty:info.mapName] && info.type != RFModelPropertyTypeNone)
+	{
+		return info;
+	}
+	
+	return nil;
+}
+@end
+
 ////////////////////
 
 @implementation TmpModel
@@ -128,7 +194,13 @@
 	if (self)
 	{
 //		_name = @"test";
-		self.name = @"test1";
+//		self.name = @"test1";
+		
+//		self.name = @"test";
+//		[self setName:@"t"];
+		[self setValue:@"test1" forKey:@"name"];
+		[self _rfm_mapName:@"123"];
+		NSLog(@"%@", self.name);
 	}
 	return self;
 }

@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+#define RFProperty(Property, MapName)	\
+	@property (nonatomic, setter=_rfm_##MapName:) Property
+
 @interface RFModel : NSObject
 {
 	
@@ -19,9 +22,13 @@
 {
 	
 }
-@property (nonatomic, strong, setter=_rf_nameValue:) NSString *name;
+//@property (nonatomic, setter=_rfm_nameValue:) NSString *name;
+//@property (nonatomic, setter=_rfm_sexValue:) NSInteger sex;
 
-- (void)test;
+RFProperty(NSString *name, mapName);
+RFProperty(NSInteger sex, mapSex);
+
+//- (void)test;
 
 @end
 
@@ -29,6 +36,10 @@
 {
 	
 }
-@property (nonatomic, strong, setter=_rf_set_urlValue_url:, getter=_rf_get_urlValue_url) NSString *url;
+RFProperty(NSUInteger value_NSUInteger, mapValue_NSUInteger);
+RFProperty(short value_short, mapValue_short);
+RFProperty(long long value_long_long, mapValue_long_long);
+RFProperty(unsigned long long value_long_long_u, mapValue_long_long_u);
+RFProperty(NSDictionary *value_NSDictionary, mapValue_NSDictionary);
 
 @end
