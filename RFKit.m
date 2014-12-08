@@ -28,6 +28,15 @@ static NSString *s_language = nil;
 #endif
 }
 
++ (BOOL)isSimulatorEnv
+{
+#ifdef __i386__
+	return YES;
+#else
+	return NO;
+#endif
+}
+
 + (NSString *)preferredLanguage
 {
 //	preferredLanguages : (

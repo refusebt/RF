@@ -101,6 +101,7 @@
 @interface RFKit : NSObject
 
 + (BOOL)isDebugMode;
++ (BOOL)isSimulatorEnv;
 + (NSString *)preferredLanguage;
 + (BOOL)isEnLanguage;
 + (BOOL)isCnLanguage;
