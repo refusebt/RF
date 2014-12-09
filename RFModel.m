@@ -19,7 +19,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	RFModelPropertyTypeDouble,
 	RFModelPropertyTypeString,
 	RFModelPropertyTypeArray,
-	RFModelPropertyTypeNSDictionary,
+	RFModelPropertyTypeDictionary,
 };
 
 @interface RFModelPropertyInfo : NSObject
@@ -30,6 +30,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 
 + (NSMutableDictionary *)mapPropertyInfosWithClass:(Class)cls;
 + (RFModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property;
+
 @end
 
 @interface RFModel ()
@@ -58,6 +59,46 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		
 	}
 	return self;
+}
+
+- (void)fillWithJsonDict:(NSDictionary *)jsonDict
+{
+	for (NSString *key in jsonDict)
+	{
+		RFModelPropertyInfo *info = [[RFModel modelInfos] objectForKey:key];
+		if (info != nil)
+		{
+			switch (info.type)
+			{
+				case RFModelPropertyTypeInteger:
+					[self setValue:J2NumInteger(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeInt64:
+					[self setValue:J2NumInt64(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeShort:
+					[self setValue:J2NumShort(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeFloat:
+					[self setValue:J2NumFloat(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeDouble:
+					[self setValue:J2NumDouble(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeString:
+					[self setValue:J2Str(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeArray:
+					[self setValue:J2Array(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeDictionary:
+					[self setValue:J2Dict(jsonDict[key]) forKey:info.name];
+					break;
+				default:
+					break;
+			}
+		}
+	}
 }
 
 + (NSMutableDictionary *)modelInfos
@@ -153,7 +194,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 			}
 			else if ([attrib hasPrefix:@"T@\"NSDictionary\""])
 			{
-				info.type = RFModelPropertyTypeNSDictionary;
+				info.type = RFModelPropertyTypeDictionary;
 			}
 			else
 			{
@@ -182,6 +223,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	
 	return nil;
 }
+
 @end
 
 ////////////////////
@@ -193,14 +235,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	self = [super init];
 	if (self)
 	{
-//		_name = @"test";
-//		self.name = @"test1";
 		
-//		self.name = @"test";
-//		[self setName:@"t"];
-		[self setValue:@"test1" forKey:@"name"];
-		[self _rfm_mapName:@"123"];
-		NSLog(@"%@", self.name);
 	}
 	return self;
 }
@@ -214,9 +249,5 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 //{
 //	_name = value;
 //}
-
-@end
-
-@implementation TmpOtherModel
 
 @end
