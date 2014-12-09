@@ -1,9 +1,9 @@
 //
 //  RFModel.m
-//  PhotoThin
+//  RF
 //
 //  Created by gouzhehua on 14-12-5.
-//  Copyright (c) 2014年 RefuseBT. All rights reserved.
+//  Copyright (c) 2014年 GZH. All rights reserved.
 //
 
 #import "RFModel.h"
@@ -12,9 +12,9 @@
 typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 {
 	RFModelPropertyTypeNone = 0,
-	RFModelPropertyTypeInteger,
+	RFModelPropertyTypeInt16,
+	RFModelPropertyTypeInt32,
 	RFModelPropertyTypeInt64,
-	RFModelPropertyTypeShort,
 	RFModelPropertyTypeFloat,
 	RFModelPropertyTypeDouble,
 	RFModelPropertyTypeString,
@@ -63,21 +63,23 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 
 - (void)fillWithJsonDict:(NSDictionary *)jsonDict
 {
+	const char *className = object_getClassName([self class]);
+	NSDictionary *mapPropertyInfos = [[RFModel modelInfos] objectForKey:[NSValue valueWithPointer:className]];
 	for (NSString *key in jsonDict)
 	{
-		RFModelPropertyInfo *info = [[RFModel modelInfos] objectForKey:key];
+		RFModelPropertyInfo *info = mapPropertyInfos[key];
 		if (info != nil)
 		{
 			switch (info.type)
 			{
-				case RFModelPropertyTypeInteger:
-					[self setValue:J2NumInteger(jsonDict[key]) forKey:info.name];
+				case RFModelPropertyTypeInt16:
+					[self setValue:J2NumInt16(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeInt32:
+					[self setValue:J2NumInt32(jsonDict[key]) forKey:info.name];
 					break;
 				case RFModelPropertyTypeInt64:
 					[self setValue:J2NumInt64(jsonDict[key]) forKey:info.name];
-					break;
-				case RFModelPropertyTypeShort:
-					[self setValue:J2NumShort(jsonDict[key]) forKey:info.name];
 					break;
 				case RFModelPropertyTypeFloat:
 					[self setValue:J2NumFloat(jsonDict[key]) forKey:info.name];
@@ -136,6 +138,41 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	return 0;
 }
 
++ (int16_t)toInt16WithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSNumber class]])
+	{
+		return [value shortValue];
+	}
+	
+	if ([value isKindOfClass:[NSString class]])
+	{
+		return [value intValue];
+	}
+	
+	return 0;
+}
+
++ (int32_t)toInt32WithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]])
+	{
+		return [value intValue];
+	}
+	
+	return 0;
+}
+
 + (int64_t)toInt64WithJsonValue:(id)value
 {
 	if (value == nil || value == [NSNull null])
@@ -143,7 +180,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		return 0;
 	}
 	
-	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]])
 	{
 		return [value longLongValue];
 	}
@@ -158,9 +195,14 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		return 0;
 	}
 	
-	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	if ([value isKindOfClass:[NSNumber class]])
 	{
 		return [value shortValue];
+	}
+	
+	if ([value isKindOfClass:[NSString class]])
+	{
+		return [value intValue];
 	}
 	
 	return 0;
@@ -173,7 +215,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		return 0;
 	}
 	
-	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]])
 	{
 		return [value floatValue];
 	}
@@ -188,7 +230,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		return 0;
 	}
 	
-	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]])
 	{
 		return [value doubleValue];
 	}
@@ -238,10 +280,10 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	return s_instance;
 }
 
-+ (BOOL)resolveInstanceMethod:(SEL)sel
-{
-	return YES;
-}
+//+ (BOOL)resolveInstanceMethod:(SEL)sel
+//{
+//	return YES;
+//}
 
 @end
 
@@ -291,7 +333,11 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		{
 			if ([attrib hasPrefix:@"Ti"] || [attrib hasPrefix:@"TI"])
 			{
-				info.type = RFModelPropertyTypeInteger;
+				info.type = RFModelPropertyTypeInt32;
+			}
+			else if ([attrib hasPrefix:@"Tl"] || [attrib hasPrefix:@"TL"])
+			{
+				info.type = RFModelPropertyTypeInt32;
 			}
 			else if ([attrib hasPrefix:@"Tq"] || [attrib hasPrefix:@"TQ"])
 			{
@@ -299,7 +345,7 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 			}
 			else if ([attrib hasPrefix:@"Ts"] || [attrib hasPrefix:@"TS"])
 			{
-				info.type = RFModelPropertyTypeShort;
+				info.type = RFModelPropertyTypeInt16;
 			}
 			else if ([attrib hasPrefix:@"Tf"] || [attrib hasPrefix:@"TF"])
 			{
@@ -414,15 +460,5 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	}
 	return self;
 }
-
-//- (void)setName:(NSString *)value
-//{
-//	
-//}
-
-//- (void)_rf_set_nameValue_name:(NSString *)value
-//{
-//	_name = value;
-//}
 
 @end
