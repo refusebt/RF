@@ -8,6 +8,7 @@
 
 #import "ARCMacros.h"
 #import "SVProgressHUD.h"
+#import "RFModel.h"
 #import "RFKit.h"
 #import "RFColor.h"
 #import "RFUIKit.h"

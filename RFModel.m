@@ -101,6 +101,131 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	}
 }
 
++ (NSString *)toStringWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return @"";
+	}
+	
+	if ([value isKindOfClass:[NSString class]])
+	{
+		return value;
+	}
+	
+	if ([value isKindOfClass:[NSNumber class]])
+	{
+		return  [value stringValue];
+	}
+	
+	return @"";
+}
+
++ (NSInteger)toIntegerWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value integerValue];
+	}
+	
+	return 0;
+}
+
++ (int64_t)toInt64WithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value longLongValue];
+	}
+	
+	return 0;
+}
+
++ (short)toShortWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value shortValue];
+	}
+	
+	return 0;
+}
+
++ (float)toFloatWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value floatValue];
+	}
+	
+	return 0;
+}
+
++ (double)toDoubleWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return 0;
+	}
+	
+	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
+	{
+		return [value doubleValue];
+	}
+	
+	return 0;
+}
+
++ (id)toArrayWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return nil;
+	}
+	
+	if ([value isKindOfClass:[NSArray class]])
+	{
+		return value;
+	}
+	
+	return nil;
+}
+
++ (id)toDictionaryWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return nil;
+	}
+	
+	if ([value isKindOfClass:[NSDictionary class]])
+	{
+		return value;
+	}
+	
+	return nil;
+}
+
 + (NSMutableDictionary *)modelInfos
 {
 	static NSMutableDictionary *s_instance = nil;
@@ -222,6 +347,56 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	}
 	
 	return nil;
+}
+
+@end
+
+#pragma mark NSString (RFModel)
+
+@implementation NSString (RFModel)
+
++ (BOOL)isEmpty:(NSString *)value
+{
+	if ((value == nil) || value == (NSString *)[NSNull null] || (value.length == 0))
+	{
+		return YES;
+	}
+	return NO;
+}
+
++ (NSString *)ifNilToStr:(NSString *)value
+{
+	if ((value == nil) || (value == (NSString *)[NSNull null]))
+	{
+		return @"";
+	}
+	return value;
+}
+
++ (NSString *)stringWithInteger:(NSInteger)value
+{
+	NSNumber *number = [NSNumber numberWithInteger:value];
+	return [number stringValue];
+}
+
++ (NSString *)stringWithLong:(long)value
+{
+	return [NSString stringWithFormat:@"%ld", value];
+}
+
++ (NSString *)stringWithLongLong:(int64_t)value
+{
+	return [NSString stringWithFormat:@"%lld", value];
+}
+
++ (NSString *)stringWithFloat:(float)value
+{
+	return [NSString stringWithFormat:@"%f", value];
+}
+
++ (NSString *)stringWithDouble:(double)value
+{
+	return [NSString stringWithFormat:@"%lf", value];
 }
 
 @end

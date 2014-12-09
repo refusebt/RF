@@ -22,64 +22,6 @@
 #define VER(a,b,c)	\
 	((a) * 1000000 + (b) * 1000 + (c))
 
-#define DICT_ADD_STR(dict, key, value)	\
-	[(dict) setObject:[NSString ifNilToStr:(value)] forKey:(key)]
-#define DICT_ADD_INT_STR(dict, key, value)	\
-	[(dict) setObject:[NSString stringWithLongLong:(value)] forKey:(key)]
-#define DICT_ADD_FLOAT_STR(dict, key, value)	\
-	[(dict) setObject:[NSString stringWithDouble:(value)] forKey:(key)]
-
-#define J2Str(value)	\
-	[RFKit toStringWithJsonValue:value]
-
-#define J2Integer(value)	\
-	[RFKit toIntegerWithJsonValue:value]
-
-#define J2Int64(value)	\
-	[RFKit toInt64WithJsonValue:value]
-
-#define J2Short(value)	\
-	[RFKit toShortWithJsonValue:value]
-
-#define J2Float(value)	\
-	[RFKit toFloatWithJsonValue:value]
-
-#define J2Double(value)	\
-	[RFKit toDoubleWithJsonValue:value]
-
-#define J2Array(value)	\
-	[RFKit toArrayWithJsonValue:value]
-
-#define J2Dict(value)	\
-	[RFKit toDictionaryWithJsonValue:value]
-
-#define J2NumInteger(value)	\
-	[NSNumber numberWithInteger:[RFKit toIntegerWithJsonValue:value]]
-
-#define J2NumInt64(value)	\
-	[NSNumber numberWithLongLong:[RFKit toInt64WithJsonValue:value]]
-
-#define J2NumShort(value)	\
-	[NSNumber numberWithShort:[RFKit toShortWithJsonValue:value]]
-
-#define J2NumFloat(value)	\
-	[NSNumber numberWithFloat:[RFKit toFloatWithJsonValue:value]]
-
-#define J2NumDouble(value)	\
-	[NSNumber numberWithDouble:[RFKit toDoubleWithJsonValue:value]]
-
-#define V2Str(value)	\
-	[NSString ifNilToStr:(value)]
-
-#define V2NumInteger(value)	\
-	[NSNumber numberWithInteger:(value)]
-
-#define V2NumInt64(value)	\
-	[NSNumber numberWithLongLong:(value)]
-
-#define V2NumShort(value)	\
-	[NSNumber numberWithShort:(value)]
-
 #ifndef IS_IOS6
 	#define IS_IOS6	([RFKit iosVer] >= VER(6, 0, 0))
 #endif
@@ -126,15 +68,6 @@
 + (NSString *)className:(Class)cls;
 + (NSString *)selectorName:(SEL)aSelector;
 
-+ (NSString *)toStringWithJsonValue:(id)value;
-+ (NSInteger)toIntegerWithJsonValue:(id)value;
-+ (int64_t)toInt64WithJsonValue:(id)value;
-+ (short)toShortWithJsonValue:(id)value;
-+ (float)toFloatWithJsonValue:(id)value;
-+ (double)toDoubleWithJsonValue:(id)value;
-+ (id)toArrayWithJsonValue:(id)value;
-+ (id)toDictionaryWithJsonValue:(id)value;
-
 + (id)deepMutableCopyWithJson:(id)json;
 
 + (NSString *)getUUID;
@@ -165,15 +98,6 @@
 
 - (NSString *)trim;
 - (NSInteger)charCount;
-
-+ (BOOL)isEmpty:(NSString *)value;
-+ (NSString *)ifNilToStr:(NSString *)value;
-
-+ (NSString *)stringWithInteger:(NSInteger)value;
-+ (NSString *)stringWithLong:(long)value;
-+ (NSString *)stringWithLongLong:(int64_t)value;
-+ (NSString *)stringWithFloat:(float)value;
-+ (NSString *)stringWithDouble:(double)value;
 
 - (NSString *)stringByURLEncoding;
 - (NSString *)stringByURLDecoding;
