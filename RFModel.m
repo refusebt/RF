@@ -22,6 +22,19 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	RFModelPropertyTypeDictionary,
 };
 
+static char* s_RFModelPropertyTypeName[] =
+{
+	"RFModelPropertyTypeNone",
+	"RFModelPropertyTypeInt16",
+	"RFModelPropertyTypeInt32",
+	"RFModelPropertyTypeInt64",
+	"RFModelPropertyTypeFloat",
+	"RFModelPropertyTypeDouble",
+	"RFModelPropertyTypeString",
+	"RFModelPropertyTypeArray",
+	"RFModelPropertyTypeDictionary"
+};
+
 @interface RFModelPropertyInfo : NSObject
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *mapName;
@@ -59,6 +72,41 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		
 	}
 	return self;
+}
+
+- (NSString *)description
+{
+	NSMutableString *buffer = [NSMutableString string];
+	
+	Class current = [self class];
+	while (current != [RFModel class])
+	{
+		unsigned count = 0;
+		objc_property_t *properties = class_copyPropertyList(current, &count);
+		for (unsigned i = 0; i < count; i++)
+		{
+			objc_property_t property = properties[i];
+			RFModelPropertyInfo *pi = [RFModelPropertyInfo propertyInfoWithProperty:&property];
+			if (pi != nil)
+			{
+				// JProperty
+				id value = [self valueForKey:pi.name];
+				[buffer appendFormat:@"JP name:%@ value:%@ type:%s map:%@\n", pi.name, value, s_RFModelPropertyTypeName[pi.type], pi.mapName];
+			}
+			else
+			{
+				// no JProperty
+				NSString *name = [NSString stringWithUTF8String:property_getName(property)];
+				id value = [self valueForKey:name];
+				[buffer appendFormat:@" P name:%@ value:%@ \n", name, value];
+			}
+		}
+		free(properties);
+		
+		current = [current superclass];
+	}
+	
+	return buffer;
 }
 
 - (void)fillWithJsonDict:(NSDictionary *)jsonDict
@@ -322,53 +370,12 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	
 	NSString *propertyAttrString = [NSString stringWithUTF8String:property_getAttributes(*property)];
 	NSArray *propertyAttrArray = [propertyAttrString componentsSeparatedByString:@","];
+	NSString *typeAttrib = @"";
 	for (NSString *attrib in propertyAttrArray)
 	{
 		if ([attrib hasPrefix:@"T"] && attrib.length > 1)
 		{
-			if ([attrib hasPrefix:@"Ti"] || [attrib hasPrefix:@"TI"])
-			{
-				info.type = RFModelPropertyTypeInt32;
-			}
-			else if ([attrib hasPrefix:@"Tl"] || [attrib hasPrefix:@"TL"])
-			{
-				info.type = RFModelPropertyTypeInt32;
-			}
-			else if ([attrib hasPrefix:@"Tq"] || [attrib hasPrefix:@"TQ"])
-			{
-				info.type = RFModelPropertyTypeInt64;
-			}
-			else if ([attrib hasPrefix:@"Ts"] || [attrib hasPrefix:@"TS"])
-			{
-				info.type = RFModelPropertyTypeInt16;
-			}
-			else if ([attrib hasPrefix:@"Tf"] || [attrib hasPrefix:@"TF"])
-			{
-				info.type = RFModelPropertyTypeFloat;
-			}
-			else if ([attrib hasPrefix:@"Td"] || [attrib hasPrefix:@"TD"])
-			{
-				info.type = RFModelPropertyTypeDouble;
-			}
-			else if ([attrib hasPrefix:@"T@\"NSString\""])
-			{
-				info.type = RFModelPropertyTypeString;
-			}
-			else if ([attrib hasPrefix:@"T@\"NSArray\""])
-			{
-				info.type = RFModelPropertyTypeArray;
-			}
-			else if ([attrib hasPrefix:@"T@\"NSDictionary\""])
-			{
-				info.type = RFModelPropertyTypeDictionary;
-			}
-			else
-			{
-				NSException *e = [NSException exceptionWithName:@"Unsupport RFModel Type"
-														 reason:[NSString stringWithFormat:@"Unsupport RFModel Type (%@, %@)", info.name, attrib]
-													   userInfo:nil];
-				@throw e;
-			}
+			typeAttrib = attrib;
 		}
 		else if ([attrib hasPrefix:@"S"] && attrib.length > 7)
 		{
@@ -382,9 +389,56 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 		}
 	}
 	
-	if (![NSString isEmpty:info.mapName] && info.type != RFModelPropertyTypeNone)
+	if (![NSString isEmpty:info.mapName] && ![NSString isEmpty:typeAttrib])
 	{
-		return info;
+		if ([typeAttrib hasPrefix:@"Ti"] || [typeAttrib hasPrefix:@"TI"])
+		{
+			info.type = RFModelPropertyTypeInt32;
+		}
+		else if ([typeAttrib hasPrefix:@"Tl"] || [typeAttrib hasPrefix:@"TL"])
+		{
+			info.type = RFModelPropertyTypeInt32;
+		}
+		else if ([typeAttrib hasPrefix:@"Tq"] || [typeAttrib hasPrefix:@"TQ"])
+		{
+			info.type = RFModelPropertyTypeInt64;
+		}
+		else if ([typeAttrib hasPrefix:@"Ts"] || [typeAttrib hasPrefix:@"TS"])
+		{
+			info.type = RFModelPropertyTypeInt16;
+		}
+		else if ([typeAttrib hasPrefix:@"Tf"] || [typeAttrib hasPrefix:@"TF"])
+		{
+			info.type = RFModelPropertyTypeFloat;
+		}
+		else if ([typeAttrib hasPrefix:@"Td"] || [typeAttrib hasPrefix:@"TD"])
+		{
+			info.type = RFModelPropertyTypeDouble;
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSString\""])
+		{
+			info.type = RFModelPropertyTypeString;
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSArray\""])
+		{
+			info.type = RFModelPropertyTypeArray;
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSDictionary\""])
+		{
+			info.type = RFModelPropertyTypeDictionary;
+		}
+		else
+		{
+			NSException *e = [NSException exceptionWithName:@"Unsupport RFModel Type"
+													 reason:[NSString stringWithFormat:@"Unsupport RFModel Type (%@, %@)", info.name, typeAttrib]
+												   userInfo:nil];
+			@throw e;
+		}
+		
+		if (info.type != RFModelPropertyTypeNone)
+		{
+			return info;
+		}
 	}
 	
 	return nil;
