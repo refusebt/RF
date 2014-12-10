@@ -280,11 +280,6 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	return s_instance;
 }
 
-//+ (BOOL)resolveInstanceMethod:(SEL)sel
-//{
-//	return YES;
-//}
-
 @end
 
 #pragma mark - RFModelPropertyInfo
@@ -443,22 +438,6 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 + (NSString *)stringWithDouble:(double)value
 {
 	return [NSString stringWithFormat:@"%lf", value];
-}
-
-@end
-
-////////////////////
-
-@implementation TmpModel
-
-- (id)init
-{
-	self = [super init];
-	if (self)
-	{
-		
-	}
-	return self;
 }
 
 @end
