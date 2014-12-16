@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define JProperty(MapName, Property)	\
+#define JProperty(Property, MapName)	\
 	@property (nonatomic, setter=_rfm_##MapName:) Property
 
 #define J2Str(value)	\
@@ -16,6 +16,9 @@
 
 #define J2Integer(value)	\
 	[RFModel toIntegerWithJsonValue:value]
+
+#define J2Bool(value)	\
+	[RFModel toBoolWithJsonValue:value]
 
 #define J2Int16(value)	\
 	[RFModel toInt16WithJsonValue:value]
@@ -44,6 +47,9 @@
 #define J2NumInteger(value)	\
 	[NSNumber numberWithInteger:[RFModel toIntegerWithJsonValue:value]]
 
+#define J2NumBool(value)	\
+	[NSNumber numberWithBool:[RFModel toBoolWithJsonValue:value]]
+
 #define J2NumInt16(value)	\
 	[NSNumber numberWithShort:[RFModel toInt16WithJsonValue:value]]
 
@@ -68,6 +74,9 @@
 #define V2NumInteger(value)	\
 	[NSNumber numberWithInteger:(value)]
 
+#define V2NumBool(value)	\
+	[NSNumber numberWithBool:(value)]
+
 #define V2NumInt16(value)	\
 	[NSNumber numberWithShort:(value)]
 
@@ -89,6 +98,7 @@
 
 + (NSString *)toStringWithJsonValue:(id)value;
 + (NSInteger)toIntegerWithJsonValue:(id)value;
++ (BOOL)toBoolWithJsonValue:(id)value;
 + (int16_t)toInt16WithJsonValue:(id)value;
 + (int32_t)toInt32WithJsonValue:(id)value;
 + (int64_t)toInt64WithJsonValue:(id)value;
@@ -97,6 +107,8 @@
 + (double)toDoubleWithJsonValue:(id)value;
 + (id)toArrayWithJsonValue:(id)value;
 + (id)toDictionaryWithJsonValue:(id)value;
+
+//+ (id)deepMutableCopyWithObject:(id)object;
 
 @end
 

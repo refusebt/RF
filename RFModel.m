@@ -12,6 +12,7 @@
 typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 {
 	RFModelPropertyTypeNone = 0,
+	RFModelPropertyTypeBOOL,
 	RFModelPropertyTypeInt16,
 	RFModelPropertyTypeInt32,
 	RFModelPropertyTypeInt64,
@@ -19,12 +20,15 @@ typedef NS_ENUM(NSUInteger, RFModelPropertyType)
 	RFModelPropertyTypeDouble,
 	RFModelPropertyTypeString,
 	RFModelPropertyTypeArray,
+	RFModelPropertyTypeModelArray,
 	RFModelPropertyTypeDictionary,
+	RFModelPropertyTypeModel,
 };
 
 static char* s_RFModelPropertyTypeName[] =
 {
 	"RFModelPropertyTypeNone",
+	"RFModelPropertyTypeBOOL",
 	"RFModelPropertyTypeInt16",
 	"RFModelPropertyTypeInt32",
 	"RFModelPropertyTypeInt64",
@@ -32,7 +36,9 @@ static char* s_RFModelPropertyTypeName[] =
 	"RFModelPropertyTypeDouble",
 	"RFModelPropertyTypeString",
 	"RFModelPropertyTypeArray",
-	"RFModelPropertyTypeDictionary"
+	"RFModelPropertyTypeModelArray",
+	"RFModelPropertyTypeDictionary",
+	"RFModelPropertyTypeModel"
 };
 
 @interface RFModelPropertyInfo : NSObject
@@ -40,6 +46,8 @@ static char* s_RFModelPropertyTypeName[] =
 @property (nonatomic, strong) NSString *mapName;
 @property (nonatomic, strong) NSString *var;
 @property (nonatomic, assign) RFModelPropertyType type;
+@property (nonatomic, assign) const char *modelClassName;
+@property (nonatomic, assign) Class modelClass;
 
 + (NSMutableDictionary *)mapPropertyInfosWithClass:(Class)cls;
 + (RFModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property;
@@ -120,6 +128,9 @@ static char* s_RFModelPropertyTypeName[] =
 		{
 			switch (info.type)
 			{
+				case RFModelPropertyTypeBOOL:
+					[self setValue:J2NumBool(jsonDict[key]) forKey:info.name];
+					break;
 				case RFModelPropertyTypeInt16:
 					[self setValue:J2NumInt16(jsonDict[key]) forKey:info.name];
 					break;
@@ -141,8 +152,39 @@ static char* s_RFModelPropertyTypeName[] =
 				case RFModelPropertyTypeArray:
 					[self setValue:J2Array(jsonDict[key]) forKey:info.name];
 					break;
+				case RFModelPropertyTypeModelArray:
+					{
+						NSArray *array = J2Array(jsonDict[key]);
+						if (array != nil)
+						{
+							NSMutableArray *models = [NSMutableArray array];
+							for (NSInteger i = 0; i < array.count; i++)
+							{
+								NSDictionary *dict = J2Dict(array[i]);
+								if (dict != nil)
+								{
+									RFModel *model = [[info.modelClass alloc] init];
+									[model fillWithJsonDict:dict];
+									[models addObject:model];
+								}
+							}
+							[self setValue:[NSArray arrayWithArray:models] forKey:info.name];
+						}
+					}
+					break;
 				case RFModelPropertyTypeDictionary:
 					[self setValue:J2Dict(jsonDict[key]) forKey:info.name];
+					break;
+				case RFModelPropertyTypeModel:
+					{
+						NSDictionary *dict = J2Dict(jsonDict[key]);
+						if (dict != nil)
+						{
+							RFModel *model = [[info.modelClass alloc] init];
+							[model fillWithJsonDict:dict];
+							[self setValue:model forKey:info.name];
+						}
+					}
 					break;
 				default:
 					break;
@@ -155,7 +197,7 @@ static char* s_RFModelPropertyTypeName[] =
 {
 	if (value == nil || value == [NSNull null])
 	{
-		return @"";
+		return nil;
 	}
 	
 	if ([value isKindOfClass:[NSString class]])
@@ -168,7 +210,7 @@ static char* s_RFModelPropertyTypeName[] =
 		return  [value stringValue];
 	}
 	
-	return @"";
+	return nil;
 }
 
 + (NSInteger)toIntegerWithJsonValue:(id)value
@@ -181,6 +223,26 @@ static char* s_RFModelPropertyTypeName[] =
 	if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])
 	{
 		return [value integerValue];
+	}
+	
+	return 0;
+}
+
++ (BOOL)toBoolWithJsonValue:(id)value
+{
+	if (value == nil || value == [NSNull null])
+	{
+		return NO;
+	}
+	
+	if ([value isKindOfClass:[NSNumber class]])
+	{
+		return [value boolValue];
+	}
+	
+	if ([value isKindOfClass:[NSString class]])
+	{
+		return [value boolValue];
 	}
 	
 	return 0;
@@ -391,7 +453,11 @@ static char* s_RFModelPropertyTypeName[] =
 	
 	if (![NSString isEmpty:info.mapName] && ![NSString isEmpty:typeAttrib])
 	{
-		if ([typeAttrib hasPrefix:@"Ti"] || [typeAttrib hasPrefix:@"TI"])
+		if ([typeAttrib hasPrefix:@"Tb"] || [typeAttrib hasPrefix:@"TB"])
+		{
+			info.type = RFModelPropertyTypeBOOL;
+		}
+		else if ([typeAttrib hasPrefix:@"Ti"] || [typeAttrib hasPrefix:@"TI"])
 		{
 			info.type = RFModelPropertyTypeInt32;
 		}
@@ -423,11 +489,35 @@ static char* s_RFModelPropertyTypeName[] =
 		{
 			info.type = RFModelPropertyTypeArray;
 		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSArray<"])
+		{
+			// T@"NSArray<ClassName>"
+			const char *className = [[typeAttrib substringWithRange:NSMakeRange(11, typeAttrib.length-13)] cStringUsingEncoding:NSUTF8StringEncoding];
+			Class cls = objc_getClass(className);
+			if (cls != nil && [cls isSubclassOfClass:[RFModel class]])
+			{
+				info.type = RFModelPropertyTypeModelArray;
+				info.modelClassName = className;
+				info.modelClass = cls;
+			}
+		}
 		else if ([typeAttrib hasPrefix:@"T@\"NSDictionary\""])
 		{
 			info.type = RFModelPropertyTypeDictionary;
 		}
-		else
+		else if ([typeAttrib hasPrefix:@"T@"] && typeAttrib.length > 4)
+		{
+			const char *className = [[typeAttrib substringWithRange:NSMakeRange(3, typeAttrib.length-4)] cStringUsingEncoding:NSUTF8StringEncoding];
+			Class cls = objc_getClass(className);
+			if (cls != nil && [cls isSubclassOfClass:[RFModel class]])
+			{
+				info.type = RFModelPropertyTypeModel;
+				info.modelClassName = className;
+				info.modelClass = cls;
+			}
+		}
+		
+		if (info.type == RFModelPropertyTypeNone)
 		{
 			NSException *e = [NSException exceptionWithName:@"Unsupport RFModel Type"
 													 reason:[NSString stringWithFormat:@"Unsupport RFModel Type (%@, %@)", info.name, typeAttrib]
@@ -435,10 +525,7 @@ static char* s_RFModelPropertyTypeName[] =
 			@throw e;
 		}
 		
-		if (info.type != RFModelPropertyTypeNone)
-		{
-			return info;
-		}
+		return info;
 	}
 	
 	return nil;
