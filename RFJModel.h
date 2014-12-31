@@ -1,5 +1,5 @@
 //
-//  RFModel.h
+//  RFJModel.h
 //  RF
 //
 //  Created by gouzhehua on 14-12-5.
@@ -8,65 +8,70 @@
 
 #import <Foundation/Foundation.h>
 
+#define	JMODEL_RETRUN_EMPTY_STRING			@""
+
 #define JProperty(Property, MapName)	\
-	@property (nonatomic, setter=_rfm_##MapName:) Property
+	@property (nonatomic, setter=_rfjm_##MapName:) Property
+
+#define IS_EMPTY_STR(value)	\
+	[NSString isEmpty:value]
 
 #define J2Str(value)	\
-	[RFModel toStringWithJsonValue:value]
+	[RFJModel toStringWithJsonValue:value]
 
 #define J2Integer(value)	\
-	[RFModel toIntegerWithJsonValue:value]
+	[RFJModel toIntegerWithJsonValue:value]
 
 #define J2Bool(value)	\
-	[RFModel toBoolWithJsonValue:value]
+	[RFJModel toBoolWithJsonValue:value]
 
 #define J2Int16(value)	\
-	[RFModel toInt16WithJsonValue:value]
+	[RFJModel toInt16WithJsonValue:value]
 
 #define J2Int32(value)	\
-	[RFModel toInt32WithJsonValue:value]
+	[RFJModel toInt32WithJsonValue:value]
 
 #define J2Int64(value)	\
-	[RFModel toInt64WithJsonValue:value]
+	[RFJModel toInt64WithJsonValue:value]
 
 #define J2Short(value)	\
-	[RFModel toShortWithJsonValue:value]
+	[RFJModel toShortWithJsonValue:value]
 
 #define J2Float(value)	\
-	[RFModel toFloatWithJsonValue:value]
+	[RFJModel toFloatWithJsonValue:value]
 
 #define J2Double(value)	\
-	[RFModel toDoubleWithJsonValue:value]
+	[RFJModel toDoubleWithJsonValue:value]
 
 #define J2Array(value)	\
-	[RFModel toArrayWithJsonValue:value]
+	[RFJModel toArrayWithJsonValue:value]
 
 #define J2Dict(value)	\
-	[RFModel toDictionaryWithJsonValue:value]
+	[RFJModel toDictionaryWithJsonValue:value]
 
 #define J2NumInteger(value)	\
-	[NSNumber numberWithInteger:[RFModel toIntegerWithJsonValue:value]]
+	[NSNumber numberWithInteger:[RFJModel toIntegerWithJsonValue:value]]
 
 #define J2NumBool(value)	\
-	[NSNumber numberWithBool:[RFModel toBoolWithJsonValue:value]]
+	[NSNumber numberWithBool:[RFJModel toBoolWithJsonValue:value]]
 
 #define J2NumInt16(value)	\
-	[NSNumber numberWithShort:[RFModel toInt16WithJsonValue:value]]
+	[NSNumber numberWithShort:[RFJModel toInt16WithJsonValue:value]]
 
 #define J2NumInt32(value)	\
-	[NSNumber numberWithInt:[RFModel toInt32WithJsonValue:value]]
+	[NSNumber numberWithInt:[RFJModel toInt32WithJsonValue:value]]
 
 #define J2NumInt64(value)	\
-	[NSNumber numberWithLongLong:[RFModel toInt64WithJsonValue:value]]
+	[NSNumber numberWithLongLong:[RFJModel toInt64WithJsonValue:value]]
 
 #define J2NumShort(value)	\
-	[NSNumber numberWithShort:[RFModel toShortWithJsonValue:value]]
+	[NSNumber numberWithShort:[RFJModel toShortWithJsonValue:value]]
 
 #define J2NumFloat(value)	\
-	[NSNumber numberWithFloat:[RFModel toFloatWithJsonValue:value]]
+	[NSNumber numberWithFloat:[RFJModel toFloatWithJsonValue:value]]
 
 #define J2NumDouble(value)	\
-	[NSNumber numberWithDouble:[RFModel toDoubleWithJsonValue:value]]
+	[NSNumber numberWithDouble:[RFJModel toDoubleWithJsonValue:value]]
 
 #define V2Str(value)	\
 	[NSString ifNilToStr:(value)]
@@ -89,7 +94,7 @@
 #define V2NumShort(value)	\
 	[NSNumber numberWithShort:(value)]
 
-@interface RFModel : NSObject
+@interface RFJModel : NSObject
 {
 	
 }
@@ -108,13 +113,13 @@
 + (id)toArrayWithJsonValue:(id)value;
 + (id)toDictionaryWithJsonValue:(id)value;
 
-//+ (id)deepMutableCopyWithObject:(id)object;
++ (id)deepMutableCopyWithJson:(id)json;
 
 @end
 
-#pragma mark NSString (RFModel)
+#pragma mark NSString (RFJModel)
 
-@interface NSString (RFModel)
+@interface NSString (RFJModel)
 
 + (BOOL)isEmpty:(NSString *)value;
 + (NSString *)ifNilToStr:(NSString *)value;

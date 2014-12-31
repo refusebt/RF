@@ -1,74 +1,83 @@
 //
-//  RFModel.m
+//  RFJModel.m
 //  RF
 //
 //  Created by gouzhehua on 14-12-5.
 //  Copyright (c) 2014年 GZH. All rights reserved.
 //
 
-#import "RFModel.h"
+#import "RFJModel.h"
 #import <objc/runtime.h>
 
-typedef NS_ENUM(NSUInteger, RFModelPropertyType)
+typedef NS_ENUM(NSUInteger, RFJModelPropertyType)
 {
-	RFModelPropertyTypeNone = 0,
-	RFModelPropertyTypeBOOL,
-	RFModelPropertyTypeInt16,
-	RFModelPropertyTypeInt32,
-	RFModelPropertyTypeInt64,
-	RFModelPropertyTypeFloat,
-	RFModelPropertyTypeDouble,
-	RFModelPropertyTypeString,
-	RFModelPropertyTypeArray,
-	RFModelPropertyTypeModelArray,
-	RFModelPropertyTypeDictionary,
-	RFModelPropertyTypeModel,
+	RFJModelPropertyTypeNone = 0,
+	RFJModelPropertyTypeBOOL,
+	RFJModelPropertyTypeInt16,
+	RFJModelPropertyTypeInt32,
+	RFJModelPropertyTypeInt64,
+	RFJModelPropertyTypeFloat,
+	RFJModelPropertyTypeDouble,
+	RFJModelPropertyTypeString,
+	RFJModelPropertyTypeMutableString,
+	RFJModelPropertyTypeArray,
+	RFJModelPropertyTypeMutableArray,
+	RFJModelPropertyTypeModelArray,
+	RFJModelPropertyTypeMutableModelArray,
+	RFJModelPropertyTypeDictionary,
+	RFJModelPropertyTypeMutableDictionary,
+	RFJModelPropertyTypeModel,
 };
 
-static char* s_RFModelPropertyTypeName[] =
+static char* s_RFJModelPropertyTypeName[] =
 {
-	"RFModelPropertyTypeNone",
-	"RFModelPropertyTypeBOOL",
-	"RFModelPropertyTypeInt16",
-	"RFModelPropertyTypeInt32",
-	"RFModelPropertyTypeInt64",
-	"RFModelPropertyTypeFloat",
-	"RFModelPropertyTypeDouble",
-	"RFModelPropertyTypeString",
-	"RFModelPropertyTypeArray",
-	"RFModelPropertyTypeModelArray",
-	"RFModelPropertyTypeDictionary",
-	"RFModelPropertyTypeModel"
+	"RFJModelPropertyTypeNone",
+	"RFJModelPropertyTypeBOOL",
+	"RFJModelPropertyTypeInt16",
+	"RFJModelPropertyTypeInt32",
+	"RFJModelPropertyTypeInt64",
+	"RFJModelPropertyTypeFloat",
+	"RFJModelPropertyTypeDouble",
+	"RFJModelPropertyTypeString",
+	"RFJModelPropertyTypeMutableString",
+	"RFJModelPropertyTypeArray",
+	"RFJModelPropertyTypeMutableArray",
+	"RFJModelPropertyTypeModelArray",
+	"RFJModelPropertyTypeMutableModelArray",
+	"RFJModelPropertyTypeDictionary",
+	"RFJModelPropertyTypeMutableDictionary",
+	"RFJModelPropertyTypeModel"
 };
 
-@interface RFModelPropertyInfo : NSObject
+@interface RFJModelPropertyInfo : NSObject
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *mapName;
 @property (nonatomic, strong) NSString *var;
-@property (nonatomic, assign) RFModelPropertyType type;
+@property (nonatomic, assign) RFJModelPropertyType type;
 @property (nonatomic, assign) const char *modelClassName;
 @property (nonatomic, assign) Class modelClass;
 
 + (NSMutableDictionary *)mapPropertyInfosWithClass:(Class)cls;
-+ (RFModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property;
++ (RFJModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property;
 
 @end
 
-@interface RFModel ()
+@interface RFJModel ()
 + (NSMutableDictionary *)modelInfos;
+- (void)descriptionWithBuffer:(NSMutableString *)buffer indent:(NSInteger)indent;
 @end
 
-#pragma mark - RFModel
+#pragma mark - RFJModel
 
-@implementation RFModel
+@implementation RFJModel
 
 + (void)initialize
 {
-	if ([self class] != [RFModel class])
+	if ([self class] != [RFJModel class])
 	{
-		NSMutableDictionary *mapPropertyInfos = [RFModelPropertyInfo mapPropertyInfosWithClass:[self class]];
+		NSMutableDictionary *mapPropertyInfos = [RFJModelPropertyInfo mapPropertyInfosWithClass:[self class]];
 		const char *className = object_getClassName([self class]);
-		[[RFModel modelInfos] setObject:mapPropertyInfos forKey:[NSValue valueWithPointer:className]];
+		[[RFJModel modelInfos] setObject:mapPropertyInfos forKey:[NSValue valueWithPointer:className]];
 	}
 }
 
@@ -85,74 +94,138 @@ static char* s_RFModelPropertyTypeName[] =
 - (NSString *)description
 {
 	NSMutableString *buffer = [NSMutableString string];
+	[self descriptionWithBuffer:buffer indent:0];
+	return buffer;
+}
+
+- (void)descriptionWithBuffer:(NSMutableString *)buffer indent:(NSInteger)indent
+{
+	NSMutableString *indentString = [NSMutableString string];
+	for (NSInteger i = 0; i < indent; i++)
+	{
+		[indentString appendString:@"\t"];
+	}
+	NSString *replaceString = [NSString stringWithFormat:@"\n%@", indentString];
 	
 	Class current = [self class];
-	while (current != [RFModel class])
+	while (current != [RFJModel class])
 	{
 		unsigned count = 0;
 		objc_property_t *properties = class_copyPropertyList(current, &count);
 		for (unsigned i = 0; i < count; i++)
 		{
 			objc_property_t property = properties[i];
-			RFModelPropertyInfo *pi = [RFModelPropertyInfo propertyInfoWithProperty:&property];
+			RFJModelPropertyInfo *pi = [RFJModelPropertyInfo propertyInfoWithProperty:&property];
 			if (pi != nil)
 			{
 				// JProperty
 				id value = [self valueForKey:pi.name];
-				[buffer appendFormat:@"JP name:%@ value:%@ type:%s map:%@\n", pi.name, value, s_RFModelPropertyTypeName[pi.type], pi.mapName];
+				switch (pi.type)
+				{
+					case RFJModelPropertyTypeModel:
+						{
+							[buffer appendFormat:@"\n%@JP name:%@ type:%s map:%@ value:", indentString, pi.name, s_RFJModelPropertyTypeName[pi.type], pi.mapName];
+							RFJModel *model = value;
+							[model descriptionWithBuffer:buffer indent:indent+1];
+						}
+						break;
+					case RFJModelPropertyTypeModelArray:
+					case RFJModelPropertyTypeMutableModelArray:
+						{
+							[buffer appendFormat:@"\n%@JP name:%@ type:%s map:%@ value:", indentString, pi.name, s_RFJModelPropertyTypeName[pi.type], pi.mapName];
+							NSArray *models = value;
+							for (NSInteger i = 0; i < models.count; i++)
+							{
+								RFJModel *model = models[i];
+								[buffer appendFormat:@"\n\t%@-", indentString];
+								[model descriptionWithBuffer:buffer indent:indent+1];
+							}
+						}
+						break;
+					default:
+						{
+							NSString *valueString = [value description];
+							valueString = [valueString stringByReplacingOccurrencesOfString:@"\n" withString:replaceString];
+							[buffer appendFormat:@"\n%@JP name:%@ type:%s map:%@ value:%@", indentString, pi.name, s_RFJModelPropertyTypeName[pi.type], pi.mapName, valueString];
+						}
+						break;
+				}
 			}
 			else
 			{
 				// no JProperty
 				NSString *name = [NSString stringWithUTF8String:property_getName(property)];
 				id value = [self valueForKey:name];
-				[buffer appendFormat:@" P name:%@ value:%@ \n", name, value];
+				NSString *valueString = [value description];
+				valueString = [valueString stringByReplacingOccurrencesOfString:@"\n" withString:replaceString];
+				[buffer appendFormat:@"\n%@ P name:%@ value:%@", indentString, name, valueString];
 			}
 		}
 		free(properties);
 		
 		current = [current superclass];
 	}
-	
-	return buffer;
 }
 
 - (void)fillWithJsonDict:(NSDictionary *)jsonDict
 {
 	const char *className = object_getClassName([self class]);
-	NSDictionary *mapPropertyInfos = [[RFModel modelInfos] objectForKey:[NSValue valueWithPointer:className]];
+	NSDictionary *mapPropertyInfos = [[RFJModel modelInfos] objectForKey:[NSValue valueWithPointer:className]];
 	for (NSString *key in jsonDict)
 	{
-		RFModelPropertyInfo *info = mapPropertyInfos[key];
+		RFJModelPropertyInfo *info = mapPropertyInfos[key];
 		if (info != nil)
 		{
 			switch (info.type)
 			{
-				case RFModelPropertyTypeBOOL:
+				case RFJModelPropertyTypeBOOL:
 					[self setValue:J2NumBool(jsonDict[key]) forKey:info.name];
 					break;
-				case RFModelPropertyTypeInt16:
+				case RFJModelPropertyTypeInt16:
 					[self setValue:J2NumInt16(jsonDict[key]) forKey:info.name];
 					break;
-				case RFModelPropertyTypeInt32:
+				case RFJModelPropertyTypeInt32:
 					[self setValue:J2NumInt32(jsonDict[key]) forKey:info.name];
 					break;
-				case RFModelPropertyTypeInt64:
+				case RFJModelPropertyTypeInt64:
 					[self setValue:J2NumInt64(jsonDict[key]) forKey:info.name];
 					break;
-				case RFModelPropertyTypeFloat:
+				case RFJModelPropertyTypeFloat:
 					[self setValue:J2NumFloat(jsonDict[key]) forKey:info.name];
 					break;
-				case RFModelPropertyTypeDouble:
+				case RFJModelPropertyTypeDouble:
 					[self setValue:J2NumDouble(jsonDict[key]) forKey:info.name];
 					break;
-				case RFModelPropertyTypeString:
-					[self setValue:J2Str(jsonDict[key]) forKey:info.name];
+				case RFJModelPropertyTypeString:
+					{
+						NSString *value = J2Str(jsonDict[key]);
+						if (value != nil)
+							[self setValue:value forKey:info.name];
+					}
 					break;
-				case RFModelPropertyTypeArray:
-					[self setValue:J2Array(jsonDict[key]) forKey:info.name];
+				case RFJModelPropertyTypeMutableString:
+					{
+						NSString *value = J2Str(jsonDict[key]);
+						if (value != nil)
+							[self setValue:[RFJModel deepMutableCopyWithJson:value] forKey:info.name];
+					}
 					break;
-				case RFModelPropertyTypeModelArray:
+				case RFJModelPropertyTypeArray:
+					{
+						NSArray *value = J2Array(jsonDict[key]);
+						if (value != nil)
+							[self setValue:value forKey:info.name];
+					}
+					break;
+				case RFJModelPropertyTypeMutableArray:
+					{
+						NSArray *value = J2Array(jsonDict[key]);
+						if (value != nil)
+							[self setValue:[RFJModel deepMutableCopyWithJson:value] forKey:info.name];
+					}
+					break;
+				case RFJModelPropertyTypeModelArray:
+				case RFJModelPropertyTypeMutableModelArray:
 					{
 						NSArray *array = J2Array(jsonDict[key]);
 						if (array != nil)
@@ -163,24 +236,39 @@ static char* s_RFModelPropertyTypeName[] =
 								NSDictionary *dict = J2Dict(array[i]);
 								if (dict != nil)
 								{
-									RFModel *model = [[info.modelClass alloc] init];
+									RFJModel *model = [[info.modelClass alloc] init];
 									[model fillWithJsonDict:dict];
 									[models addObject:model];
 								}
 							}
-							[self setValue:[NSArray arrayWithArray:models] forKey:info.name];
+							
+							if (info.type == RFJModelPropertyTypeModelArray)
+								[self setValue:[NSArray arrayWithArray:models] forKey:info.name];
+							else
+								[self setValue:models forKey:info.name];
 						}
 					}
 					break;
-				case RFModelPropertyTypeDictionary:
-					[self setValue:J2Dict(jsonDict[key]) forKey:info.name];
+				case RFJModelPropertyTypeDictionary:
+					{
+						NSDictionary *value = J2Dict(jsonDict[key]);
+						if (value != nil)
+							[self setValue:value forKey:info.name];
+					}
 					break;
-				case RFModelPropertyTypeModel:
+				case RFJModelPropertyTypeMutableDictionary:
+					{
+						NSDictionary *value = J2Dict(jsonDict[key]);
+						if (value != nil)
+							[self setValue:[RFJModel deepMutableCopyWithJson:value] forKey:info.name];
+					}
+					break;
+				case RFJModelPropertyTypeModel:
 					{
 						NSDictionary *dict = J2Dict(jsonDict[key]);
 						if (dict != nil)
 						{
-							RFModel *model = [[info.modelClass alloc] init];
+							RFJModel *model = [[info.modelClass alloc] init];
 							[model fillWithJsonDict:dict];
 							[self setValue:model forKey:info.name];
 						}
@@ -197,7 +285,7 @@ static char* s_RFModelPropertyTypeName[] =
 {
 	if (value == nil || value == [NSNull null])
 	{
-		return nil;
+		return JMODEL_RETRUN_EMPTY_STRING;
 	}
 	
 	if ([value isKindOfClass:[NSString class]])
@@ -210,7 +298,7 @@ static char* s_RFModelPropertyTypeName[] =
 		return  [value stringValue];
 	}
 	
-	return nil;
+	return JMODEL_RETRUN_EMPTY_STRING;
 }
 
 + (NSInteger)toIntegerWithJsonValue:(id)value
@@ -245,7 +333,7 @@ static char* s_RFModelPropertyTypeName[] =
 		return [value boolValue];
 	}
 	
-	return 0;
+	return NO;
 }
 
 + (int16_t)toInt16WithJsonValue:(id)value
@@ -378,6 +466,47 @@ static char* s_RFModelPropertyTypeName[] =
 	return nil;
 }
 
++ (id)deepMutableCopyWithJson:(id)json
+{
+	if (json == nil || [json isKindOfClass:[NSNull class]])
+	{
+		return [NSMutableString stringWithFormat:@""];
+	}
+	
+	if ([json isKindOfClass:[NSString class]])
+	{
+		return [NSMutableString stringWithFormat:@"%@", json];
+	}
+	
+	if ([json isKindOfClass:[NSNumber class]])
+	{
+		return json;
+	}
+	
+	if ([json isKindOfClass:[NSArray class]])
+	{
+		NSMutableArray *array = [NSMutableArray array];
+		for (id value in json)
+		{
+			[array addObject:[RFJModel deepMutableCopyWithJson:value]];
+		}
+		return array;
+	}
+	
+	if ([json isKindOfClass:[NSDictionary class]])
+	{
+		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+		for (NSString *key in json)
+		{
+			id value = [RFJModel deepMutableCopyWithJson:json[key]];
+			[dict setObject:value forKey:key];
+		}
+		return dict;
+	}
+	
+	return json;
+}
+
 + (NSMutableDictionary *)modelInfos
 {
 	static NSMutableDictionary *s_instance = nil;
@@ -392,25 +521,25 @@ static char* s_RFModelPropertyTypeName[] =
 
 @end
 
-#pragma mark - RFModelPropertyInfo
+#pragma mark - RFJModelPropertyInfo
 
-@implementation RFModelPropertyInfo
+@implementation RFJModelPropertyInfo
 
 + (NSMutableDictionary *)mapPropertyInfosWithClass:(Class)cls
 {
 	NSMutableDictionary *mapProperInfos = [NSMutableDictionary dictionary];
 	
-	if ([cls isSubclassOfClass:[RFModel class]])
+	if ([cls isSubclassOfClass:[RFJModel class]])
 	{
 		Class current = cls;
-		while (current != [RFModel class])
+		while (current != [RFJModel class])
 		{
 			unsigned count = 0;
 			objc_property_t *properties = class_copyPropertyList(current, &count);
 			for (unsigned i = 0; i < count; i++)
 			{
 				objc_property_t property = properties[i];
-				RFModelPropertyInfo *pi = [RFModelPropertyInfo propertyInfoWithProperty:&property];
+				RFJModelPropertyInfo *pi = [RFJModelPropertyInfo propertyInfoWithProperty:&property];
 				if (pi != nil)
 				{
 					[mapProperInfos setObject:pi forKey:pi.mapName];
@@ -425,9 +554,9 @@ static char* s_RFModelPropertyTypeName[] =
 	return mapProperInfos;
 }
 
-+ (RFModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property
++ (RFJModelPropertyInfo *)propertyInfoWithProperty:(objc_property_t *)property
 {
-	RFModelPropertyInfo *info = [[RFModelPropertyInfo alloc] init];
+	RFJModelPropertyInfo *info = [[RFJModelPropertyInfo alloc] init];
 	info.name = [NSString stringWithUTF8String:property_getName(*property)];
 	
 	NSString *propertyAttrString = [NSString stringWithUTF8String:property_getAttributes(*property)];
@@ -441,8 +570,8 @@ static char* s_RFModelPropertyTypeName[] =
 		}
 		else if ([attrib hasPrefix:@"S"] && attrib.length > 7)
 		{
-			// S_rfm_mapName:
-			info.mapName = [attrib substringWithRange:NSMakeRange(6, attrib.length-7)];
+			// S_rfjm_mapName:
+			info.mapName = [attrib substringWithRange:NSMakeRange(7, attrib.length-8)];
 		}
 		else if ([attrib hasPrefix:@"V"] && attrib.length > 1)
 		{
@@ -455,72 +584,96 @@ static char* s_RFModelPropertyTypeName[] =
 	{
 		if ([typeAttrib hasPrefix:@"Tb"] || [typeAttrib hasPrefix:@"TB"])
 		{
-			info.type = RFModelPropertyTypeBOOL;
+			info.type = RFJModelPropertyTypeBOOL;
 		}
 		else if ([typeAttrib hasPrefix:@"Ti"] || [typeAttrib hasPrefix:@"TI"])
 		{
-			info.type = RFModelPropertyTypeInt32;
+			info.type = RFJModelPropertyTypeInt32;
 		}
 		else if ([typeAttrib hasPrefix:@"Tl"] || [typeAttrib hasPrefix:@"TL"])
 		{
-			info.type = RFModelPropertyTypeInt32;
+			info.type = RFJModelPropertyTypeInt32;
 		}
 		else if ([typeAttrib hasPrefix:@"Tq"] || [typeAttrib hasPrefix:@"TQ"])
 		{
-			info.type = RFModelPropertyTypeInt64;
+			info.type = RFJModelPropertyTypeInt64;
 		}
 		else if ([typeAttrib hasPrefix:@"Ts"] || [typeAttrib hasPrefix:@"TS"])
 		{
-			info.type = RFModelPropertyTypeInt16;
+			info.type = RFJModelPropertyTypeInt16;
 		}
 		else if ([typeAttrib hasPrefix:@"Tf"] || [typeAttrib hasPrefix:@"TF"])
 		{
-			info.type = RFModelPropertyTypeFloat;
+			info.type = RFJModelPropertyTypeFloat;
 		}
 		else if ([typeAttrib hasPrefix:@"Td"] || [typeAttrib hasPrefix:@"TD"])
 		{
-			info.type = RFModelPropertyTypeDouble;
+			info.type = RFJModelPropertyTypeDouble;
 		}
 		else if ([typeAttrib hasPrefix:@"T@\"NSString\""])
 		{
-			info.type = RFModelPropertyTypeString;
+			info.type = RFJModelPropertyTypeString;
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSMutableString\""])
+		{
+			info.type = RFJModelPropertyTypeMutableString;
 		}
 		else if ([typeAttrib hasPrefix:@"T@\"NSArray\""])
 		{
-			info.type = RFModelPropertyTypeArray;
+			info.type = RFJModelPropertyTypeArray;
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSMutableArray\""])
+		{
+			info.type = RFJModelPropertyTypeMutableArray;
 		}
 		else if ([typeAttrib hasPrefix:@"T@\"NSArray<"])
 		{
 			// T@"NSArray<ClassName>"
 			const char *className = [[typeAttrib substringWithRange:NSMakeRange(11, typeAttrib.length-13)] cStringUsingEncoding:NSUTF8StringEncoding];
 			Class cls = objc_getClass(className);
-			if (cls != nil && [cls isSubclassOfClass:[RFModel class]])
+			if (cls != nil && [cls isSubclassOfClass:[RFJModel class]])
 			{
-				info.type = RFModelPropertyTypeModelArray;
+				info.type = RFJModelPropertyTypeModelArray;
+				info.modelClassName = className;
+				info.modelClass = cls;
+			}
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSMutableArray<"])
+		{
+			// T@"NSMutableArray<ClassName>"
+			const char *className = [[typeAttrib substringWithRange:NSMakeRange(18, typeAttrib.length-20)] cStringUsingEncoding:NSUTF8StringEncoding];
+			Class cls = objc_getClass(className);
+			if (cls != nil && [cls isSubclassOfClass:[RFJModel class]])
+			{
+				info.type = RFJModelPropertyTypeMutableModelArray;
 				info.modelClassName = className;
 				info.modelClass = cls;
 			}
 		}
 		else if ([typeAttrib hasPrefix:@"T@\"NSDictionary\""])
 		{
-			info.type = RFModelPropertyTypeDictionary;
+			info.type = RFJModelPropertyTypeDictionary;
+		}
+		else if ([typeAttrib hasPrefix:@"T@\"NSMutableDictionary\""])
+		{
+			info.type = RFJModelPropertyTypeMutableDictionary;
 		}
 		else if ([typeAttrib hasPrefix:@"T@"] && typeAttrib.length > 4)
 		{
 			const char *className = [[typeAttrib substringWithRange:NSMakeRange(3, typeAttrib.length-4)] cStringUsingEncoding:NSUTF8StringEncoding];
 			Class cls = objc_getClass(className);
-			if (cls != nil && [cls isSubclassOfClass:[RFModel class]])
+			if (cls != nil && [cls isSubclassOfClass:[RFJModel class]])
 			{
-				info.type = RFModelPropertyTypeModel;
+				info.type = RFJModelPropertyTypeModel;
 				info.modelClassName = className;
 				info.modelClass = cls;
 			}
 		}
 		
-		if (info.type == RFModelPropertyTypeNone)
+		if (info.type == RFJModelPropertyTypeNone)
 		{
-			NSException *e = [NSException exceptionWithName:@"Unsupport RFModel Type"
-													 reason:[NSString stringWithFormat:@"Unsupport RFModel Type (%@, %@)", info.name, typeAttrib]
+			NSException *e = [NSException exceptionWithName:@"Unsupport RFJModel Type"
+													 reason:[NSString stringWithFormat:@"Unsupport RFJModel Type (%@, %@)", info.name, typeAttrib]
 												   userInfo:nil];
 			@throw e;
 		}
@@ -533,9 +686,9 @@ static char* s_RFModelPropertyTypeName[] =
 
 @end
 
-#pragma mark NSString (RFModel)
+#pragma mark NSString (RFJModel)
 
-@implementation NSString (RFModel)
+@implementation NSString (RFJModel)
 
 + (BOOL)isEmpty:(NSString *)value
 {
