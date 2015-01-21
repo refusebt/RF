@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "RFJModel.h"
 
 #define DECREASE_COUNT(v)	\
 	((v)>0 ? (--(v)) : 0)
@@ -29,6 +31,13 @@
 #ifndef IS_IPHONE5
 	#define IS_IPHONE5 ([RFKit isIPhone5Type])
 #endif
+
+#define DICT_ADD_STR(dict, key, value)	\
+	[(dict) setObject:[NSString ifNilToStr:(value)] forKey:(key)]
+#define DICT_ADD_INT_STR(dict, key, value)	\
+	[(dict) setObject:[NSString stringWithLongLong:(value)] forKey:(key)]
+#define DICT_ADD_FLOAT_STR(dict, key, value)	\
+	[(dict) setObject:[NSString stringWithDouble:(value)] forKey:(key)]
 
 #pragma mark RFKit
 
