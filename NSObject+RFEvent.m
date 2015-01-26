@@ -124,11 +124,12 @@
 	[nc removeObserver:self name:anEvent object:anObject];
 	if (aRFEvent.isMainRun)
 	{
+		__weak NSObject *selfRef = self;
 		[nc addObserverForName:anEvent
 						object:anObject
 						 queue:[NSOperationQueue mainQueue]
 					usingBlock:^(NSNotification *note){
-						[self rfHandleRFEventBlockCallback:note];
+						[selfRef rfHandleRFEventBlockCallback:note];
 					}];
 	}
 	else
