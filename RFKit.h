@@ -39,6 +39,33 @@
 #define DICT_ADD_FLOAT_STR(dict, key, value)	\
 	[(dict) setObject:[NSString stringWithDouble:(value)] forKey:(key)]
 
+typedef NSMutableArray RFKeyValues;
+typedef NSMutableArray RFKeyValue;
+
+#define KVS_ADD_STR(keyValues, key, value)	\
+	[(keyValues) addObject:[NSMutableArray arrayWithObjects:(key), (value), nil]];
+
+#define KVS_ADD_INT(keyValues, key, value)	\
+	[(keyValues) addObject:[NSMutableArray arrayWithObjects:(key), [NSNumber numberWithInteger:(value)], nil]];
+
+#define KVS_ADD_FLOAT(keyValues, key, value)	\
+	[(keyValues) addObject:[NSMutableArray arrayWithObjects:(key), [NSNumber numberWithDouble:(value)], nil]];
+
+#define KV_KEY(keyValue)	\
+	[(keyValue) objectAtIndex:0]
+
+#define KV_VALUE(keyValue)	\
+	[(keyValue) objectAtIndex:1]
+
+#define KV_VALUE_STR(keyValue)	\
+	J2Str([(keyValue) objectAtIndex:1])
+
+#define KV_VALUE_INT(keyValue)	\
+	J2Integer([(keyValue) objectAtIndex:1])
+
+#define KV_VALUE_FLOAT(keyValue)	\
+	J2Float([(keyValue) objectAtIndex:1])
+
 #pragma mark RFKit
 
 @interface RFKit : NSObject
