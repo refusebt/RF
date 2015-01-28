@@ -85,6 +85,7 @@ static UIWindow *s_inter_window = nil;
 	
 	UIView *viewBg = [[UIView alloc] init];
 	viewBg.backgroundColor = [UIColor whiteColor];
+	viewBg.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
 	[bgViewInWindow addSubview:viewBg];
 	
 	UIInterfaceOrientation orientation = [[UIApplication sharedApplication]statusBarOrientation];
@@ -111,6 +112,7 @@ static UIWindow *s_inter_window = nil;
 	}
 	
 	UISegmentedControl *btnClose = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"Cancel"]];
+	btnClose.autoresizingMask = UIViewAutoresizingNone;
 	btnClose.momentary = YES;
 	btnClose.frame = CGRectMake(10.0f, top, 50.0f, 30.0f);
 	if (!IS_IOS8)
@@ -121,6 +123,7 @@ static UIWindow *s_inter_window = nil;
 	[viewBg addSubview:btnClose];
 	
 	UISegmentedControl *btnSave = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"Done"]];
+	btnSave.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
 	btnSave.momentary = YES;
 	btnSave.frame = CGRectMake(viewBgWidth - 60, top, 50.0f, 30.0f);
 	if (!IS_IOS8)
@@ -132,6 +135,7 @@ static UIWindow *s_inter_window = nil;
 	
 	CGRect pickerFrame = CGRectMake(0, 30+top+gap, 0, 0);
 	UIPickerView *pickerView = [[UIPickerView alloc] initWithFrame:pickerFrame];
+	pickerView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 	pickerView.showsSelectionIndicator = YES;
 	pickerView.dataSource = self;
 	pickerView.delegate = self;
