@@ -7,6 +7,7 @@
 //
 
 #import "RFUIWindow.h"
+#import "RFUIKit.h"
 
 @interface RFUIWindowController ()
 

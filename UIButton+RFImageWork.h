@@ -6,6 +6,7 @@
 //  Copyright (c) 2014年 GZH. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "RFWork.h"
 #import "RFImageWork.h"
 

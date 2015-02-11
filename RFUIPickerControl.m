@@ -9,6 +9,7 @@
 #import "RFUIPickerControl.h"
 #import "RFColor.h"
 #import "RFUIWindow.h"
+#import "RFUIKit.h"
 
 static UIWindow *s_inter_window = nil;
 
