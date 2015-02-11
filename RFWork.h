@@ -87,7 +87,7 @@ RFWorkState;
 
 - (id)init;
 
-- (void)startRelyOn:(id)obj;
+- (void)startByOwner:(id)obj;
 
 - (void)main;		// 子类重写
 - (void)cancel;

@@ -8,8 +8,8 @@
 
 #import "RFCmdRequest.h"
 
-//static NSRunLoop *s_runLoop = nil;
-//static NSString *s_runLoopMode = nil;
+static NSRunLoop *s_runLoop = nil;
+static NSString *s_runLoopMode = nil;
 
 @interface RFCmdRequest ()
 <
@@ -24,29 +24,29 @@
 @implementation RFCmdRequest
 @synthesize urlConnection = _urlConnection;
 
-//+ (void)load
-//{
-//	[NSThread detachNewThreadSelector:@selector(runLoopMainProc) toTarget:[RFCmdRequest class] withObject:nil];
-//}
-//
-//+ (void)runLoopMainProc
-//{
-//	s_runLoop = [NSRunLoop currentRunLoop];
-//	s_runLoopMode = NSDefaultRunLoopMode;
-//	
-//	@autoreleasepool
-//	{
-//		do
-//		{
-//			BOOL bRun = [s_runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantPast]];
-//			if (!bRun)
-//			{
-//				[NSThread sleepForTimeInterval:0.01];
-//			}
-//		}
-//		while (1);
-//	}
-//}
++ (void)load
+{
+	[NSThread detachNewThreadSelector:@selector(runLoopMainProc) toTarget:[RFCmdRequest class] withObject:nil];
+}
+
++ (void)runLoopMainProc
+{
+	s_runLoop = [NSRunLoop currentRunLoop];
+	s_runLoopMode = NSDefaultRunLoopMode;
+	
+	@autoreleasepool
+	{
+		do
+		{
+			BOOL bRun = [s_runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantPast]];
+			if (!bRun)
+			{
+				[NSThread sleepForTimeInterval:0.01];
+			}
+		}
+		while (1);
+	}
+}
 
 - (void)dealloc
 {
@@ -58,8 +58,7 @@
 - (BOOL)startConnection
 {
 	self.urlConnection = [[NSURLConnection alloc] initWithRequest:self.urlRequest delegate:self startImmediately:NO];
-//	[_urlConnection scheduleInRunLoop:s_runLoop forMode:s_runLoopMode];
-	[_urlConnection scheduleInRunLoop:kRFRunLoop forMode:kRFRunLoopMode];
+	[_urlConnection scheduleInRunLoop:s_runLoop forMode:s_runLoopMode];
 	[_urlConnection start];
 	[self startTimeOut];
 	return YES;
@@ -70,8 +69,7 @@
 	[self stopTimeOut];
 	if (_urlConnection != nil)
 	{
-//		[_urlConnection unscheduleFromRunLoop:s_runLoop forMode:s_runLoopMode];
-		[_urlConnection unscheduleFromRunLoop:kRFRunLoop forMode:kRFRunLoopMode];
+		[_urlConnection unscheduleFromRunLoop:s_runLoop forMode:s_runLoopMode];
 		[_urlConnection cancel];
 		self.urlConnection = nil;
 	}

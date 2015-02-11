@@ -13,12 +13,6 @@
 
 @class RFCmdBaseRequest;
 
-// mainRunLoop or currentRunLoop
-#define kRFRunLoop					[NSRunLoop currentRunLoop]
-
-// NSRunLoopCommonModes or NSDefaultRunLoopMode
-#define kRFRunLoopMode				NSDefaultRunLoopMode
-
 typedef NS_ENUM(NSUInteger, RFCmdRequestType)
 {
 	RFCmdRequestTypeGet = 0,
@@ -56,12 +50,6 @@ typedef NS_ENUM(NSUInteger, RFCmdRequestCacheType)
 @property (nonatomic, SAFE_ARC_STRONG) NSMutableArray *fileDatas;
 @property (nonatomic, SAFE_ARC_STRONG) RFCmdConfig *cmdConfig;
 @property (nonatomic, SAFE_ARC_WEAK) id<RFCmdRequestDelegate> delegate;
-//@property (nonatomic, SAFE_ARC_STRONG) void(^finishBlock)(id aRequest);
-//@property (nonatomic, SAFE_ARC_STRONG) void(^failedBlock)(id aRequest);
-//@property (nonatomic, SAFE_ARC_STRONG) void(^startBlock)(id aRequest);
-//@property (nonatomic, SAFE_ARC_STRONG) void(^cancelBlock)(id aRequest);
-//@property (nonatomic, SAFE_ARC_STRONG) void(^uploadingBlock)(id aRequest);
-//@property (nonatomic, SAFE_ARC_STRONG) void(^downloadingBlock)(id aRequest);
 @property (nonatomic, SAFE_ARC_STRONG) RFCmdResult *cmdResult;
 @property (nonatomic, assign) RFCmdRequestType requestType;
 @property (nonatomic, assign) RFCmdRequestCacheType cacheType;

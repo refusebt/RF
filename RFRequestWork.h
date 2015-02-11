@@ -27,7 +27,4 @@
 - (id)init;
 - (id)initWithUrl:(NSString *)anUrl args:(NSDictionary *)anArgs requestType:(RFCmdRequestType)aRequestType;
 
-- (void)downloadingNotify;
-- (void)uploadingNotify;
-
 @end

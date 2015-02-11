@@ -90,7 +90,7 @@ static void * kRFUIImageViewBackgroundImageWorkKey = "kRFUIImageViewBackgroundIm
 		}
 	};
 	[self setImageWork:work];
-	[work startRelyOn:nil];
+	[work startByOwner:nil];
 }
 
 - (void)setBackgroundImageForState:(UIControlState)state
@@ -167,7 +167,7 @@ static void * kRFUIImageViewBackgroundImageWorkKey = "kRFUIImageViewBackgroundIm
 		}
 	};
 	[self setImageWork:work];
-	[work startRelyOn:nil];
+	[work startByOwner:nil];
 }
 
 - (RFImageWork *)imageWork

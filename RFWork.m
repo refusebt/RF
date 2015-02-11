@@ -307,7 +307,7 @@
 			];
 }
 
-- (void)startRelyOn:(id)obj
+- (void)startByOwner:(id)obj
 {
 	if (obj == nil)
 	{

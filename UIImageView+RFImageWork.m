@@ -81,7 +81,7 @@ static void * kRFUIImageViewImageWorkKey = "kRFUIImageViewImageWorkKey";
 		}
 	};
 	[self setImageWork:work];
-	[work startRelyOn:nil];
+	[work startByOwner:nil];
 }
 
 - (RFImageWork *)imageWork

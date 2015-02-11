@@ -19,6 +19,7 @@
 }
 @property (SAFE_ARC_STRONG) NSString *eventName;
 @property (SAFE_ARC_WEAK) id watchObject;
+@property (SAFE_ARC_WEAK) id observerObject;
 @property (assign) SEL action;
 @property (SAFE_ARC_STRONG) RFEventBlock block;
 @property (assign) BOOL isMainRun;
@@ -28,13 +29,21 @@
 @implementation RFEvent
 @synthesize eventName = _eventName;
 @synthesize watchObject = _watchObject;
+@synthesize observerObject = _observerObject;
 @synthesize action = _action;
 @synthesize block = _block;
 @synthesize isMainRun = _isMainRun;
 
 - (void)dealloc
 {
-	SAFE_ARC_RELEASE(eventName);
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+	[nc removeObserver:_observerObject name:_eventName object:_watchObject];
+	
+	SAFE_ARC_RELEASE(_eventName);
+	_eventName = nil;
+	_watchObject = nil;
+	_observerObject = nil;
+	_action = NULL;
 	self.block = nil;
 	
 	SAFE_ARC_SUPER_DEALLOC();
@@ -79,6 +88,7 @@
 	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
 	re.eventName = anEvent;
 	re.watchObject = anObject;
+	re.observerObject = self;
 	re.action = anAction;
 	re.block = nil;
 	re.isMainRun = NO;
@@ -90,6 +100,7 @@
 	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
 	re.eventName = anEvent;
 	re.watchObject = anObject;
+	re.observerObject = self;
 	re.action = anAction;
 	re.block = nil;
 	re.isMainRun = YES;
@@ -101,6 +112,7 @@
 	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
 	re.eventName = anEvent;
 	re.watchObject = anObject;
+	re.observerObject = self;
 	re.action = NULL;
 	re.block = aBlock;
 	re.isMainRun = NO;
@@ -112,6 +124,7 @@
 	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
 	re.eventName = anEvent;
 	re.watchObject = anObject;
+	re.observerObject = self;
 	re.action = NULL;
 	re.block = aBlock;
 	re.isMainRun = YES;
@@ -141,48 +154,35 @@
 
 - (void)rfUnwatchEvents
 {
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	NSMutableDictionary *dict = [self rfEvents];
-	for (NSString *key in dict)
-	{
-		RFEvent *re = [dict objectForKey:key];
-		[nc removeObserver:self name:re.eventName object:re.watchObject];
-	}
-	[dict removeAllObjects];
+	[[self rfEvents] removeAllObjects];
 }
 
 - (void)rfUnwatchObject:(id)anObject
 {
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	NSMutableDictionary *dict = [self rfEvents];
-	NSMutableArray *removeKeys = [NSMutableArray array];
-	for (NSString *key in dict)
+	NSArray *keys = [dict allKeys];
+	for (NSString *key in keys)
 	{
 		RFEvent *re = [dict objectForKey:key];
 		if (re.watchObject == anObject)
 		{
-			[nc removeObserver:self name:re.eventName object:re.watchObject];
-			[removeKeys addObject:key];
+			[dict removeObjectForKey:key];
 		}
 	}
-	[dict removeObjectsForKeys:removeKeys];
 }
 
 - (void)rfUnwatchObject:(id)anObject event:(NSString *)anEvent
 {
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	NSMutableDictionary *dict = [self rfEvents];
-	NSMutableArray *removeKeys = [NSMutableArray array];
-	for (NSString *key in dict)
+	NSArray *keys = [dict allKeys];
+	for (NSString *key in keys)
 	{
 		RFEvent *re = [dict objectForKey:key];
-		if ([re.eventName isEqualToString:anEvent])
+		if ((re.watchObject == anObject) && [re.eventName isEqualToString:anEvent])
 		{
-			[nc removeObserver:self name:re.eventName object:re.watchObject];
-			[removeKeys addObject:key];
+			[dict removeObjectForKey:key];
 		}
 	}
-	[dict removeObjectsForKeys:removeKeys];
 }
 
 - (void)rfPostEvent:(NSString *)anEvent userInfo:(NSDictionary *)anUserInfo

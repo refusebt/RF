@@ -95,22 +95,17 @@
 	[super cancelProc];
 }
 
-- (void)downloadingNotify
+- (void)onCmdRequestFinish:(RFCmdBaseRequest *)aRequest
 {
-	if (_downloadingBlock != nil)
-	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.downloadingBlock(self);
-		});
-	}
-	
-	if (_isDownlodingNotify)
-	{
-		[self notify];
-	}
+	[self enterSuccess];
 }
 
-- (void)uploadingNotify
+- (void)onCmdRequestFailed:(RFCmdBaseRequest *)aRequest
+{
+	[self enterFailed];
+}
+
+- (void)onCmdRequestUploading:(RFCmdBaseRequest *)aRequest
 {
 	if (_uploadingBlock != nil)
 	{
@@ -125,24 +120,19 @@
 	}
 }
 
-- (void)onCmdRequestFinish:(RFCmdBaseRequest *)aRequest
-{
-	[self enterSuccess];
-}
-
-- (void)onCmdRequestFailed:(RFCmdBaseRequest *)aRequest
-{
-	[self enterFailed];
-}
-
-- (void)onCmdRequestUploading:(RFCmdBaseRequest *)aRequest
-{
-	[self uploadingNotify];
-}
-
 - (void)onCmdRequestDownloading:(RFCmdBaseRequest *)aRequest
 {
-	[self downloadingNotify];
+	if (_downloadingBlock != nil)
+	{
+		dispatch_async(dispatch_get_main_queue(), ^(){
+			self.downloadingBlock(self);
+		});
+	}
+	
+	if (_isDownlodingNotify)
+	{
+		[self notify];
+	}
 }
 
 @end

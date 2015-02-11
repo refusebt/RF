@@ -31,12 +31,6 @@
 @synthesize fileDatas = _fileDatas;
 @synthesize cmdConfig = _cmdConfig;
 @synthesize delegate = _delegate;
-//@synthesize finishBlock = _finishBlock;
-//@synthesize failedBlock = _failedBlock;
-//@synthesize startBlock = _startBlock;
-//@synthesize cancelBlock = _cancelBlock;
-//@synthesize uploadingBlock = _uploadingBlock;
-//@synthesize downloadingBlock = _downloadingBlock;
 @synthesize cmdResult = _cmdResult;
 @synthesize requestType = _requestType;
 @synthesize cacheType = _cacheType;
@@ -80,13 +74,6 @@
 		SAFE_ARC_RELEASE(_timeOut);
 		_timeOut = nil;
 	}
-	
-//	self.finishBlock = nil;
-//	self.failedBlock = nil;
-//	self.startBlock = nil;
-//	self.cancelBlock = nil;
-//	self.uploadingBlock = nil;
-//	self.downloadingBlock = nil;
 
 	SAFE_ARC_SUPER_DEALLOC();
 }
@@ -297,11 +284,6 @@
 	{
 		[_delegate onCmdRequestStart:self];
 	}
-	
-//	if (_startBlock != nil)
-//	{
-//		_startBlock(self);
-//	}
 }
 
 - (void)callbackFinish
@@ -312,11 +294,6 @@
 	{
 		[_delegate onCmdRequestFinish:self];
 	}
-	
-//	if (_finishBlock != nil)
-//	{
-//		_finishBlock(self);
-//	}
 }
 
 - (void)callbackFailed
@@ -327,11 +304,6 @@
 	{
 		[_delegate onCmdRequestFailed:self];
 	}
-	
-//	if (_failedBlock != nil)
-//	{
-//		_failedBlock(self);
-//	}
 }
 
 - (void)callbackCancel
@@ -342,11 +314,6 @@
 	{
 		[_delegate onCmdRequestCancel:self];
 	}
-	
-//	if (_cancelBlock != nil)
-//	{
-//		_cancelBlock(self);
-//	}
 }
 
 - (void)callbackUploading
@@ -355,11 +322,6 @@
 	{
 		[_delegate onCmdRequestUploading:self];
 	}
-	
-//	if (_uploadingBlock != nil)
-//	{
-//		_uploadingBlock(self);
-//	}
 }
 
 - (void)callbackDownloading
@@ -368,11 +330,6 @@
 	{
 		[_delegate onCmdRequestDownloading:self];
 	}
-	
-//	if (_downloadingBlock != nil)
-//	{
-//		_downloadingBlock(self);
-//	}
 }
 
 - (NSString *)stringWithArgs:(NSDictionary *)anArgs
