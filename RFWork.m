@@ -9,6 +9,7 @@
 #import "RFWork.h"
 #import "RFKit.h"
 #import "NSObject+RFEvent.h"
+#import "NSObject+RFDestoryNotify.h"
 
 @interface RFWorkMgr ()
 - (void)removeWork:(RFWork *)aWork;
@@ -517,16 +518,19 @@
 
 - (void)rfRunWork:(RFWork *)aWork
 {
+	[self rfCancelWorksAuto];
 	[[RFWorkMgr sharedRequestMgr] addWork:aWork inGroup:[self rfWorkGroupName]];
 }
 
 - (void)rfRunImageWork:(RFWork *)aWork
 {
+	[self rfCancelWorksAuto];
 	[[RFWorkMgr sharedImageMgr] addWork:aWork inGroup:[self rfWorkGroupName]];
 }
 
 - (void)rfRunDownloadWork:(RFWork *)aWork
 {
+	[self rfCancelWorksAuto];
 	[[RFWorkMgr sharedDownloadMgr] addWork:aWork inGroup:[self rfWorkGroupName]];
 }
 
@@ -535,6 +539,16 @@
 	[[RFWorkMgr sharedRequestMgr] cancelGroup:[self rfWorkGroupName]];
 	[[RFWorkMgr sharedImageMgr] cancelGroup:[self rfWorkGroupName]];
 	[[RFWorkMgr sharedDownloadMgr] cancelGroup:[self rfWorkGroupName]];
+}
+
+- (void)rfCancelWorksAuto
+{
+	NSString *groupName = [self rfWorkGroupName];
+	[self rfDestoryNotifySetName:groupName block:^(RFDestoryNotify *notify){
+		[[RFWorkMgr sharedRequestMgr] cancelGroup:groupName];
+		[[RFWorkMgr sharedImageMgr] cancelGroup:groupName];
+		[[RFWorkMgr sharedDownloadMgr] cancelGroup:groupName];
+	}];
 }
 
 @end

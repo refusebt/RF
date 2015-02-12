@@ -110,4 +110,5 @@ RFWorkState;
 - (void)rfRunImageWork:(RFWork *)aWork;
 - (void)rfRunDownloadWork:(RFWork *)aWork;
 - (void)rfCancelWorks;
+- (void)rfCancelWorksAuto;
 @end
