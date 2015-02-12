@@ -42,10 +42,8 @@
 {
 	[self cancelAll];
 	
-	SAFE_ARC_RELEASE(_requestGroups);
-	SAFE_ARC_RELEASE(_operationQueue);
-	
-    SAFE_ARC_SUPER_DEALLOC();
+	_requestGroups = nil;
+	_operationQueue = nil;
 }
 
 - (NSString *)description
@@ -273,7 +271,7 @@
     if (self)
     {
 		isWorkFinish = NO;
-		_workName = SAFE_ARC_RETAIN(RFWorkName([self class]));
+		_workName = RFWorkName([self class]);
 		_groupName = @"";
 		_workState = RFWorkStateInit;
     }
@@ -284,17 +282,15 @@
 {
 	[self rfCancelWorks];
 	
-	SAFE_ARC_RELEASE(_workName);
-	SAFE_ARC_RELEASE(_groupName);
-	SAFE_ARC_RELEASE(_object1);
-	SAFE_ARC_RELEASE(_object2);
-	SAFE_ARC_RELEASE(_object3);
+	_workName = nil;
+	_groupName = nil;
+	_object1 = nil;
+	_object2 = nil;
+	_object3 = nil;
 	self.startBlock = nil;
 	self.successBlock = nil;
 	self.failedBlock = nil;
 	self.cancelledBlock = nil;
-	
-    SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (NSString *)description

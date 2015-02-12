@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ARCMacros.h"
 
 // 注：RFWork的子类不要添加start名称的属性，会导致无法启动
 
@@ -44,8 +43,8 @@ RFWorkState;
 }
 @property (nonatomic, assign) NSInteger maxRunningWifi;
 @property (nonatomic, assign) NSInteger maxRunning3g;
-@property (nonatomic, SAFE_ARC_STRONG) NSMutableDictionary *requestGroups;
-@property (nonatomic, SAFE_ARC_STRONG) NSOperationQueue *operationQueue;
+@property (nonatomic, strong) NSMutableDictionary *requestGroups;
+@property (nonatomic, strong) NSOperationQueue *operationQueue;
 
 - (void)addWork:(RFWork *)aWork;
 - (void)addWork:(RFWork *)aWork inGroup:(NSString *)aGroup;
@@ -72,18 +71,18 @@ RFWorkState;
 	BOOL isWorkFinish;
 	BOOL isWorkExecuting;
 }
-@property (nonatomic, SAFE_ARC_STRONG) NSString *workName;
-@property (nonatomic, SAFE_ARC_STRONG) NSString *groupName;
+@property (nonatomic, strong) NSString *workName;
+@property (nonatomic, strong) NSString *groupName;
 @property (nonatomic, assign) RFWorkState workState;
-@property (nonatomic, SAFE_ARC_WEAK) id sender;
-@property (nonatomic, SAFE_ARC_STRONG) id object1;
-@property (nonatomic, SAFE_ARC_STRONG) id object2;
-@property (nonatomic, SAFE_ARC_STRONG) id object3;
+@property (nonatomic, weak) id sender;
+@property (nonatomic, strong) id object1;
+@property (nonatomic, strong) id object2;
+@property (nonatomic, strong) id object3;
 @property (nonatomic, assign) int64_t tag;
-@property (nonatomic, SAFE_ARC_STRONG) RFWorkBlock startBlock;
-@property (nonatomic, SAFE_ARC_STRONG) RFWorkBlock successBlock;
-@property (nonatomic, SAFE_ARC_STRONG) RFWorkBlock failedBlock;
-@property (nonatomic, SAFE_ARC_STRONG) RFWorkBlock cancelledBlock;
+@property (nonatomic, strong) RFWorkBlock startBlock;
+@property (nonatomic, strong) RFWorkBlock successBlock;
+@property (nonatomic, strong) RFWorkBlock failedBlock;
+@property (nonatomic, strong) RFWorkBlock cancelledBlock;
 
 - (id)init;
 
