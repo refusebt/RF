@@ -9,7 +9,6 @@
 #import "NSObject+RFEvent.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
-#import "ARCMacros.h"
 
 #pragma mark RFEvent
 
@@ -17,12 +16,12 @@
 {
 	
 }
-@property (SAFE_ARC_STRONG) NSString *eventName;
-@property (SAFE_ARC_WEAK) id watchObject;
-@property (SAFE_ARC_WEAK) id observerObject;
-@property (assign) SEL action;
-@property (SAFE_ARC_STRONG) RFEventBlock block;
-@property (assign) BOOL isMainRun;
+@property (nonatomic, strong) NSString *eventName;
+@property (nonatomic, weak) id watchObject;
+@property (nonatomic, weak) id observerObject;
+@property (nonatomic, assign) SEL action;
+@property (nonatomic, strong) RFEventBlock block;
+@property (nonatomic, assign) BOOL isMainRun;
 
 @end
 
@@ -36,17 +35,14 @@
 
 - (void)dealloc
 {
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc removeObserver:_observerObject name:_eventName object:_watchObject];
+//	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+//	[nc removeObserver:_observerObject name:_eventName object:_watchObject];
 	
-	SAFE_ARC_RELEASE(_eventName);
 	_eventName = nil;
 	_watchObject = nil;
 	_observerObject = nil;
 	_action = NULL;
 	self.block = nil;
-	
-	SAFE_ARC_SUPER_DEALLOC();
 }
 
 - (NSString *)description
@@ -85,7 +81,7 @@
 
 - (void)rfWatchObject:(id)anObject event:(NSString *)anEvent action:(SEL)anAction
 {
-	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
+	RFEvent *re = [[RFEvent alloc] init];
 	re.eventName = anEvent;
 	re.watchObject = anObject;
 	re.observerObject = self;
@@ -97,7 +93,7 @@
 
 - (void)rfWatchObject:(id)anObject event:(NSString *)anEvent mainAction:(SEL)anAction
 {
-	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
+	RFEvent *re = [[RFEvent alloc] init];
 	re.eventName = anEvent;
 	re.watchObject = anObject;
 	re.observerObject = self;
@@ -109,7 +105,7 @@
 
 - (void)rfWatchObject:(id)anObject event:(NSString *)anEvent block:(RFEventBlock)aBlock
 {
-	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
+	RFEvent *re = [[RFEvent alloc] init];
 	re.eventName = anEvent;
 	re.watchObject = anObject;
 	re.observerObject = self;
@@ -121,7 +117,7 @@
 
 - (void)rfWatchObject:(id)anObject event:(NSString *)anEvent mainBlock:(RFEventBlock)aBlock
 {
-	RFEvent *re = SAFE_ARC_AUTORELEASE([[RFEvent alloc] init]);
+	RFEvent *re = [[RFEvent alloc] init];
 	re.eventName = anEvent;
 	re.watchObject = anObject;
 	re.observerObject = self;
