@@ -17,12 +17,8 @@ typedef void(^RFDestoryNotifyBlock)(RFDestoryNotify *notify);
 
 }
 @property (nonatomic, strong) NSString *name;
-
-- (NSDictionary *)userInfo;
-- (void)setUserInfo:(NSDictionary *)userInfo;
-
-- (RFDestoryNotifyBlock)block;
-- (void)setBlock:(RFDestoryNotifyBlock)block;
+@property (nonatomic, strong) NSDictionary *userInfo;
+@property (nonatomic, strong) RFDestoryNotifyBlock block;
 
 @end
 
