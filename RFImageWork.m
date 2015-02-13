@@ -105,9 +105,7 @@
 {
 	if (_downloadingBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.downloadingBlock(self);
-		});
+		self.downloadingBlock(self);
 	}
 }
 

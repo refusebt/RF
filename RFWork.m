@@ -325,33 +325,26 @@
     }
 	
 	[self setExecuting:YES];
-	[self main];
 	
-	if (self.isCancelled)
-	{
-		[self cancelProc];
-        return;
-	}
-	
-	[self enterRunning];
-	[[NSRunLoop currentRunLoop] run];
-	
-	// 等待runloop结束
-	do
-	{
-		BOOL bRun = [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantPast]];
-		if (!bRun)
-		{
-			[NSThread sleepForTimeInterval:0.01];
-		}
+	__weak RFWork *selfRef = self;
+	dispatch_async(dispatch_get_main_queue(), ^{
 		
-		if (self.isCancelled)
+		if (selfRef.isCancelled)
 		{
-			[self cancelProc];
+			[selfRef cancelProc];
 			return;
 		}
-	}
-	while (![self isFinished]);
+		
+		[selfRef main];
+		
+		if (selfRef.isCancelled)
+		{
+			[selfRef cancelProc];
+			return;
+		}
+		
+		[selfRef enterRunning];
+	});
 }
 
 - (void)main
@@ -425,9 +418,7 @@
 	_workState = RFWorkStateStart;
 	if (_startBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.startBlock(self);
-		});
+		self.startBlock(self);
 	}
 	[self notify];
 	_workState = RFWorkStateRunning;
@@ -438,9 +429,7 @@
 	_workState = RFWorkStateSuccess;
 	if (_successBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.successBlock(self);
-		});
+		self.successBlock(self);
 	}
 	[self notify];
 	[self setWorkFinish];
@@ -451,9 +440,7 @@
 	_workState = RFWorkStateCancelled;
 	if (_cancelledBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.cancelledBlock(self);
-		});
+		self.cancelledBlock(self);
 	}
 	[self notify];
 	[self setWorkFinish];
@@ -464,9 +451,7 @@
 	_workState = RFWorkStateFailed;
 	if (_failedBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.failedBlock(self);
-		});
+		self.failedBlock(self);
 	}
 	[self notify];
 	[self setWorkFinish];

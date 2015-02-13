@@ -282,7 +282,7 @@
 	
 	if (_delegate != nil && [_delegate respondsToSelector:@selector(onCmdRequestStart:)])
 	{
-		[_delegate onCmdRequestStart:self];
+		[(NSObject *)_delegate performSelectorOnMainThread:@selector(onCmdRequestStart:) withObject:self waitUntilDone:NO];
 	}
 }
 
@@ -292,7 +292,7 @@
 	
 	if (_delegate != nil && [_delegate respondsToSelector:@selector(onCmdRequestFinish:)])
 	{
-		[_delegate onCmdRequestFinish:self];
+		[(NSObject *)_delegate performSelectorOnMainThread:@selector(onCmdRequestFinish:) withObject:self waitUntilDone:NO];
 	}
 }
 
@@ -302,7 +302,7 @@
 	
 	if (_delegate != nil && [_delegate respondsToSelector:@selector(onCmdRequestFailed:)])
 	{
-		[_delegate onCmdRequestFailed:self];
+		[(NSObject *)_delegate performSelectorOnMainThread:@selector(onCmdRequestFailed:) withObject:self waitUntilDone:NO];
 	}
 }
 
@@ -312,7 +312,7 @@
 	
 	if (_delegate != nil && [_delegate respondsToSelector:@selector(onCmdRequestCancel:)])
 	{
-		[_delegate onCmdRequestCancel:self];
+		[(NSObject *)_delegate performSelectorOnMainThread:@selector(onCmdRequestCancel:) withObject:self waitUntilDone:NO];
 	}
 }
 
@@ -320,7 +320,7 @@
 {
 	if (_delegate != nil && [_delegate respondsToSelector:@selector(onCmdRequestUploading:)])
 	{
-		[_delegate onCmdRequestUploading:self];
+		[(NSObject *)_delegate performSelectorOnMainThread:@selector(onCmdRequestUploading:) withObject:self waitUntilDone:NO];
 	}
 }
 
@@ -328,7 +328,7 @@
 {
 	if (_delegate != nil && [_delegate respondsToSelector:@selector(onCmdRequestDownloading:)])
 	{
-		[_delegate onCmdRequestDownloading:self];
+		[(NSObject *)_delegate performSelectorOnMainThread:@selector(onCmdRequestDownloading:) withObject:self waitUntilDone:NO];
 	}
 }
 

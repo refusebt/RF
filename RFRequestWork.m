@@ -109,9 +109,7 @@
 {
 	if (_uploadingBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.uploadingBlock(self);
-		});
+		self.uploadingBlock(self);
 	}
 	
 	if (_isUploadingNotify)
@@ -124,9 +122,7 @@
 {
 	if (_downloadingBlock != nil)
 	{
-		dispatch_async(dispatch_get_main_queue(), ^(){
-			self.downloadingBlock(self);
-		});
+		self.downloadingBlock(self);
 	}
 	
 	if (_isDownlodingNotify)
