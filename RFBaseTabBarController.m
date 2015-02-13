@@ -25,14 +25,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-	[self rfUnwatchEvents];
-	[self rfCancelWorks];
-	
-	SAFE_ARC_SUPER_DEALLOC();
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -42,9 +34,6 @@
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-	
-	[self rfUnwatchEvents];
-	[self rfCancelWorks];
 }
 
 - (void)viewDidAppear:(BOOL)animated

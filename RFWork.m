@@ -281,7 +281,7 @@
 
 - (void)dealloc
 {
-	[self rfCancelWorks];
+	[self cancel];
 	
 	_workName = nil;
 	_groupName = nil;
@@ -362,6 +362,7 @@
 	{
 		return;
 	}
+	[self cancelProc];
 	[super cancel];
 }
 

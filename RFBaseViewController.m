@@ -39,9 +39,6 @@
 
 - (void)dealloc
 {
-	[self rfUnwatchEvents];
-	[self rfCancelWorks];
-	
 	[self removeAllInputResponders];
 	SAFE_ARC_RELEASE(_inputResponders);
 	SAFE_ARC_RELEASE(_viewResignInputResponder);
@@ -66,9 +63,6 @@
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-	
-	[self rfUnwatchEvents];
-	[self rfCancelWorks];
 }
 
 - (void)viewDidAppear:(BOOL)animated

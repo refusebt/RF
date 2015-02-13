@@ -84,8 +84,6 @@
 
 - (void)cancelProc
 {
-	[self rfCancelWorks];
-	
 	if (_workRequest != nil)
 	{
 		[_workRequest cancel];
