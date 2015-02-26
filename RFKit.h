@@ -10,6 +10,8 @@
 #import <UIKit/UIKit.h>
 #import "RFJModel.h"
 
+#define WEAK_SELF(weakSelf)  __weak __typeof(&*self)weakSelf = self;
+
 #define DECREASE_COUNT(v)	\
 	((v)>0 ? (--(v)) : 0)
 

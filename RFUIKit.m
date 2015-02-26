@@ -383,6 +383,35 @@ static CGFloat s_screenHeight = -1;
 	[self.layer setBorderWidth:1];
 }
 
+- (NSArray *)getAllViews
+{
+	NSMutableArray *result = [NSMutableArray array];
+	
+	for (UIView *view in self.subviews)
+	{
+		[result addObject:view];
+		[result addObjectsFromArray:[view getAllViews]];
+	}
+	
+	return result;
+}
+
+- (NSArray *)getAllViewsWithClass:(Class)cls
+{
+	NSMutableArray *result = [NSMutableArray array];
+	
+	for (UIView *view in self.subviews)
+	{
+		if ([view isKindOfClass:cls])
+		{
+			[result addObject:view];
+		}
+		[result addObjectsFromArray:[view getAllViewsWithClass:cls]];
+	}
+	
+	return result;
+}
+
 @end
 
 #pragma mark UIImage (RFUIKit)

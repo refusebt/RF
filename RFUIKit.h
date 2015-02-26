@@ -75,6 +75,9 @@
 - (void)borderWhite;
 - (void)borderGray;
 
+- (NSArray *)getAllViews;
+- (NSArray *)getAllViewsWithClass:(Class)cls;
+
 @end
 
 #pragma mark UIImage (RFUIKit)
