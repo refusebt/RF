@@ -28,22 +28,38 @@
 	[RFUILockView unlockView:view];
 	RFUILockView *lockView = [[RFUILockView alloc] initWithFrame:view.bounds];
 	lockView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	if (isTransparent)
-		lockView.backgroundColor = RGBA2COLOR(0, 0, 0, 0);
-	else
-		lockView.backgroundColor = RGBA2COLOR(0, 0, 0, 0.6);
 	lockView.clickBlock = clickBlock;
 	lockView.userInteractionEnabled = YES;
+	lockView.backgroundColor = RGBA2COLOR(0, 0, 0, 0);
 	[lockView setTapActionWithTarget:lockView selector:@selector(onLockViewClick:)];
 	[view addSubview:lockView];
+	
+	if (!isTransparent)
+	{
+		[UIView animateWithDuration:0.2
+						 animations:^(){
+							 lockView.backgroundColor = RGBA2COLOR(0, 0, 0, 0.4);
+						 }
+						 completion:^(BOOL isFinish){
+							 
+						 }];
+	}
 }
 
 + (void)unlockView:(UIView *)view
 {
-	NSArray *lockViews = [view getAllViewsWithClass:[RFUILockView class]];
-	for (RFUILockView *lockView in lockViews)
+	for (UIView *lockView in view.subviews)
 	{
-		[lockView removeFromSuperview];
+		if ([lockView isKindOfClass:[RFUILockView class]])
+		{
+			[UIView animateWithDuration:0.2
+							 animations:^(){
+								 lockView.backgroundColor = RGBA2COLOR(0, 0, 0, 0.0);
+							 }
+							 completion:^(BOOL isFinish){
+								 [lockView removeFromSuperview];
+							 }];
+		}
 	}
 }
 

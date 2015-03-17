@@ -9,6 +9,7 @@
 #import "RFUIKit.h"
 #import "RFKit.h"
 #import "ARCMacros.h"
+#import <objc/runtime.h>
 
 static CGFloat s_screenHeight = -1;
 
@@ -581,9 +582,9 @@ static CGFloat s_screenHeight = -1;
 
 @end
 
-#pragma mark UIViewController (ESUIKit)
+#pragma mark UIViewController (RFUIKit)
 
-@implementation UIViewController (ESUIKit)
+@implementation UIViewController (RFUIKit)
 
 - (void)presentViewController:(UIViewController *)viewController animated:(BOOL)bAnimated
 {
@@ -620,9 +621,9 @@ static CGFloat s_screenHeight = -1;
 
 @end
 
-#pragma mark UITableView (ESUIKit)
+#pragma mark UITableView (RFUIKit)
 
-@implementation UITableView (ESUIKit)
+@implementation UITableView (RFUIKit)
 
 - (void)noHeader
 {
@@ -639,9 +640,9 @@ static CGFloat s_screenHeight = -1;
 }
 @end
 
-#pragma mark UITableViewCell (ESUIKit)
+#pragma mark UITableViewCell (RFUIKit)
 
-@implementation UITableViewCell (ESUIKit)
+@implementation UITableViewCell (RFUIKit)
 
 - (void)noneSelectedStyle
 {
@@ -656,6 +657,30 @@ static CGFloat s_screenHeight = -1;
 	{
 		self.separatorInset = UIEdgeInsetsMake(0, left, 0, right);
 	}
+}
+
+@end
+
+#pragma mark CAAnimation (RFUIKit)
+
+@implementation CAAnimation (RFUIKit)
+
+static void * kRFUIKitCAAnimationKey = "kRFUIKitCAAnimationKey";
+
+- (void)setFinishBlock:(CAAnimationFinishBlock)block
+{
+	self.delegate = self;
+	objc_setAssociatedObject(self, kRFUIKitCAAnimationKey, block, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
+{
+	CAAnimationFinishBlock block = (CAAnimationFinishBlock)objc_getAssociatedObject(self, kRFUIKitCAAnimationKey);
+	if (block != nil)
+	{
+		block(flag);
+	}
+	self.delegate = nil;
 }
 
 @end

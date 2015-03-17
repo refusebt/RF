@@ -93,9 +93,9 @@
 
 @end
 
-#pragma mark UIViewController (ESUIKit)
+#pragma mark UIViewController (RFUIKit)
 
-@interface UIViewController (ESUIKit)
+@interface UIViewController (RFUIKit)
 
 - (void)presentViewController:(UIViewController *)viewController animated:(BOOL)bAnimated;
 - (void)presentViewController:(UIViewController *)viewController animated:(BOOL)bAnimated statusBarStyle:(UIStatusBarStyle)statusBarStyle;
@@ -106,16 +106,25 @@
 
 @end
 
-#pragma mark UITableView (ESUIKit)
+#pragma mark UITableView (RFUIKit)
 
-@interface UITableView (ESUIKit)
+@interface UITableView (RFUIKit)
 - (void)noHeader;
 - (void)noFooter;
 @end
 
-#pragma mark UITableViewCell (ESUIKit)
+#pragma mark UITableViewCell (RFUIKit)
 
-@interface UITableViewCell (ESUIKit)
+@interface UITableViewCell (RFUIKit)
 - (void)noneSelectedStyle;
 - (void)separatorLeft:(CGFloat)left right:(CGFloat)right;
 @end
+
+#pragma mark CAAnimation (RFUIKit)
+
+typedef void (^CAAnimationFinishBlock) (BOOL isFinish);
+
+@interface CAAnimation (RFUIKit)
+- (void)setFinishBlock:(CAAnimationFinishBlock)block;
+@end
+

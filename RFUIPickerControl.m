@@ -47,6 +47,7 @@ static UIWindow *s_inter_window = nil;
 	self.backgroundColor = [UIColor clearColor];
 	self.lbTitle = [[UILabel alloc] initWithFrame:self.bounds];
 	self.lbTitle.backgroundColor = [UIColor clearColor];
+	self.lbTitle.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.userInteractionEnabled = YES;
 	[self setTapActionWithTarget:self selector:@selector(onOptionClick:)];
 	[self addSubview:self.lbTitle];
